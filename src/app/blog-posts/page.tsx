@@ -18,8 +18,6 @@ export default function BlogPostList() {
     syncWithLocation: true,
   });
 
-  console.log("tableProps", tableProps);
-
   const { data: categoryData, isLoading: categoryIsLoading } = useMany({
     resource: "categories",
     ids:
@@ -30,8 +28,6 @@ export default function BlogPostList() {
       enabled: !!tableProps?.dataSource,
     },
   });
-
-  console.log("categoryData", categoryData);
 
   return (
     <List>

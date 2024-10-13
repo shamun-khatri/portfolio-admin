@@ -18,9 +18,38 @@ const authOptions: AuthOptions = {
       clientSecret: `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`,
     }),
   ],
-  secret: `UItTuD1HcGXIj8ZfHUswhYdNd40Lc325R8VlxQPUoR0=`,
+  secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: "jwt", // Enable JWT-based sessions
+  },
+  cookies: {
+    sessionToken: {
+      name: "next-auth.session-token",
+      options: {
+        httpOnly: false,
+        sameSite: "lax",
+        path: '/',
+        secure: false,
+      },
+    },
+    callbackUrl: {
+      name: `next-auth.callback-url`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: '/',
+        secure: false
+      }
+    },
+    csrfToken: {
+      name: `next-auth.csrf-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: '/',
+        secure: false
+      }
+    },
   },
   callbacks: {
     async jwt({ token, account }) {

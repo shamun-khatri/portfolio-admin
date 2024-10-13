@@ -1,8 +1,10 @@
 "use client";
 
-import dataProviderSimpleRest from "@refinedev/simple-rest";
+import { dataProviderCustom } from "./dataProviderCustom";
 
-const API_URL = "https://api.fake-rest.refine.dev";
-// const API_URL = "http://127.0.0.1:8787/api";
 
-export const dataProvider = dataProviderSimpleRest(API_URL);
+
+// const API_URL = "https://api.fake-rest.refine.dev";
+const API_URL = "http://127.0.0.1:8787/api";
+
+export const dataProvider = dataProviderCustom(API_URL);
