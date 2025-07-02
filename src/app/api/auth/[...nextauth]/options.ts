@@ -101,7 +101,12 @@ const authOptions: AuthOptions = {
       }
       return token;
     },
-    async session({ session }) {
+    async session({ session, token }) {
+      if (token) {
+        if (session && session.user) {
+          session.user.id = token.id; // Example: Add user ID to session
+        }
+      }
       return session;
     },
   },
