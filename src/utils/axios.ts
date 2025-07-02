@@ -3,22 +3,6 @@ import axios from "axios";
 
 const axiosInstance = axios.create({withCredentials: true});
 
-// You can also explicitly set the session-token cookie if needed
-axiosInstance.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-      const sessionToken = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("next-auth.session-token="))
-          ?.split("=")[1];
-
-      if (sessionToken) {
-          config.headers["Authorization"] = `Bearer ${sessionToken}`;
-      }
-  }
-
-  return config;
-});
-
 axiosInstance.interceptors.response.use(
   (response) => {
 

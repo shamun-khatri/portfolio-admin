@@ -26,10 +26,11 @@ const authOptions: AuthOptions = {
     sessionToken: {
       name: "next-auth.session-token",
       options: {
-        httpOnly: false,
-        sameSite: "lax",
+        hostOnly: false,
+        httpOnly: true,
+        sameSite: "none",
         path: '/',
-        secure: false,
+        secure: true,
       },
     },
     callbackUrl: {
@@ -52,6 +53,43 @@ const authOptions: AuthOptions = {
     },
   },
   callbacks: {
+    async signIn({ user, account, profile }) {
+      console.log("profile", profile);
+      if (account?.provider === 'google') {
+        try {
+          console.log("user", user);
+          // Check if the user already exists in your database
+          const existingUser = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/getuser?email=${user.email}`).then(res => res.json());
+          console.log("existingUser", existingUser);
+          if (existingUser.length === 0) {
+            // If the user doesn't exist, create a new user in your database
+            const newUser = {
+              email: user.email,
+              name: user.name,
+              avatar: user.image,
+              googleId: account.id,
+              // Add any other fields you want to store
+            };
+            
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(newUser),
+            });
+            
+            console.log('New user created:', newUser);
+          } else {
+            console.log('Existing user logged in:', existingUser[0]);
+          }
+        } catch (error) {
+          console.error('Error during sign in:', error);
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
@@ -94,7 +132,7 @@ const authOptions: AuthOptions = {
   //     const { payload } = await jwtDecrypt(token, encryptionSecret, {
   //       clockTolerance: 15,
   //     });
-  //     console.log("payload", payload);
+  //     ("payload", payload);
   //     return payload;
   //   },
   // },
