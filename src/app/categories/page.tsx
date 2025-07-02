@@ -14,33 +14,6 @@ import { useEffect } from "react";
 
 
 export default function ExperienceList() {
-
-  useEffect(() => {
-    // Fetch experiences from the API
-    const fetchExperiences = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:8787/",
-          {
-            method: "GET",
-            credentials: "include", // Include credentials (cookies, etc.)
-          }
-        );
-        console.log("Response:", response);
-        if (!response.ok) {
-          console.error("Failed to fetch experiences:", response.statusText);
-          throw new Error("Failed to fetch experiences");
-        }
-
-        const data = await response.json();
-        console.log("Fetched experiences:", data);
-      } catch (error) {
-        console.error("Error fetching experiences:", error);
-    }
-    };
-
-    fetchExperiences();
-  }, []);
   
   // Fetch experiences from the backend using the `useList` hook from Refine
   const { data, isLoading } = useList({
