@@ -44,7 +44,7 @@ export default function ExperienceList() {
   
   // Fetch experiences from the backend using the `useList` hook from Refine
   const { data, isLoading } = useList({
-    resource: "experiences",
+    resource: "experience",
   });
 
   const experiences = data?.data || [];

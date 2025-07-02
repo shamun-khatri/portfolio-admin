@@ -29,7 +29,7 @@ const authOptions: AuthOptions = {
         hostOnly: false,
         httpOnly: true,
         sameSite: "none",
-        path: '/',
+        path: "/",
         secure: true,
       },
     },
@@ -38,69 +38,70 @@ const authOptions: AuthOptions = {
       options: {
         httpOnly: true,
         sameSite: "lax",
-        path: '/',
-        secure: false
-      }
+        path: "/",
+        secure: false,
+      },
     },
     csrfToken: {
       name: `next-auth.csrf-token`,
       options: {
         httpOnly: true,
         sameSite: "lax",
-        path: '/',
-        secure: false
-      }
+        path: "/",
+        secure: false,
+      },
     },
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      console.log("profile", profile);
-      if (account?.provider === 'google') {
+      if (account?.provider === "google") {
         try {
-          console.log("user", user);
           // Check if the user already exists in your database
-          const existingUser = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user/getuser?email=${user.email}`).then(res => res.json());
+          console.log("account login");
+          const existingUser = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/user/getuser?email=${user.email}`
+          ).then((res) => res.json());
           console.log("existingUser", existingUser);
           if (existingUser.length === 0) {
             // If the user doesn't exist, create a new user in your database
             const newUser = {
+              id: user.id,
               email: user.email,
               name: user.name,
               avatar: user.image,
-              googleId: account.id,
+              googleId: user.id,
               // Add any other fields you want to store
             };
-            
+
             await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user`, {
-              method: 'POST',
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
+                "Content-Type": "application/json",
               },
               body: JSON.stringify(newUser),
+            }).catch((error) => {
+              console.error("Error creating new user:", error);
+              return false;
             });
-            
-            console.log('New user created:', newUser);
+
+            console.log("New user created:", newUser);
           } else {
-            console.log('Existing user logged in:', existingUser[0]);
+            console.log("Existing user logged in:", existingUser[0]);
           }
         } catch (error) {
-          console.error('Error during sign in:', error);
+          console.error("Error during sign in:", error);
           return false;
         }
       }
       return true;
     },
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
-        token.token_id = account.id_token;
+    async jwt({ user, token }) {
+      if (user) {
+        token.id = user.id; // Example: Add user role // Example: Add other custom data
       }
       return token;
     },
-    async session({ session, token }) {
-      session.accessToken = token.accessToken;
-      session.token_id = token.token_id;
-      session.fullToken = token;
+    async session({ session }) {
       return session;
     },
   },
