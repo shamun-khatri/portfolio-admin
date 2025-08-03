@@ -26,7 +26,6 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Loader2,
   GraduationCap,
-  Upload,
   Calendar,
   Award,
   School,
@@ -35,7 +34,8 @@ import {
 import {
   EducationFormValues,
   educationSchema,
-} from "@/components/forms/form-schemas/education-schema";
+} from "@/components/forms/form-schemas/education-schema"; // Import the reusable ImageUpload component
+import ImageUpload from "@/components/global/image-upload";
 
 interface EducationFormProps {
   userId: string;
@@ -81,9 +81,7 @@ export default function EducationForm({
         `${process.env.NEXT_PUBLIC_API_URL}/education`,
         {
           method: "POST",
-          headers: {
-            credentials: "include", // Include credentials if needed
-          },
+          credentials: "include",
           body: formData, // Use FormData as the request body
         }
       );
@@ -218,23 +216,16 @@ export default function EducationForm({
             <FormField
               control={form.control}
               name="img"
-              render={({ field }) => (
+              render={({ field: { onChange } }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Upload className="h-4 w-4" />
-                    Institution Logo/Image URL
-                  </FormLabel>
+                  <FormLabel>Institution Logo/Image</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://example.com/logo.png (optional)"
-                      {...field}
-                      className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                    <ImageUpload
+                      onFileChange={(file) => {
+                        onChange(file ? [file] : undefined); // Update form state
+                      }}
                     />
                   </FormControl>
-                  <FormDescription>
-                    Optional: Add a URL to your institution logo or relevant
-                    image
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

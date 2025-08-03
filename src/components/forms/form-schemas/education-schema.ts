@@ -1,11 +1,26 @@
 import { z } from "zod";
 
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
+const MAX_FILE_SIZE = 5000000; // 5MB
+
 export const educationSchema = z.object({
   img: z
-    .string()
-    .url("Please enter a valid image URL")
-    .optional()
-    .or(z.literal("")),
+    .any()
+    .refine((files) => files?.length >= 1, "Image is required")
+    .refine(
+      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
+      "Max file size is 5MB"
+    )
+    .refine(
+      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      "Only .jpg, .jpeg, .png, and .webp formats are supported"
+    )
+    .optional(), // Make it optional if the image is not mandatory
   school: z
     .string()
     .min(1, "School name is required")
