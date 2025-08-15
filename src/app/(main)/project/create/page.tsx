@@ -36,6 +36,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import ImageUpload from "@/components/global/image-upload";
+
+const ACCEPTED_IMAGE_TYPES = [
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+  "image/webp",
+];
+const MAX_FILE_SIZE = 5000000; // 5MB
 
 const formSchema = z.object({
   title: z
@@ -47,7 +56,18 @@ const formSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description must be less than 1000 characters"),
-  image: z.string().url("Please enter a valid image URL"),
+  image: z
+    .any()
+    .refine((files) => files?.length >= 1, "Image is required")
+    .refine(
+      (files) => files?.[0]?.size <= MAX_FILE_SIZE,
+      "Max file size is 5MB"
+    )
+    .refine(
+      (files) => ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      "Only .jpg, .jpeg, .png, and .webp formats are supported"
+    )
+    .optional(),
   tags: z
     .array(z.string())
     .min(1, "At least one tag is required")
@@ -243,7 +263,7 @@ export default function CreateProjectForm() {
               />
 
               {/* Image URL */}
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="image"
                 render={({ field }) => (
@@ -261,6 +281,29 @@ export default function CreateProjectForm() {
                     </FormControl>
                     <FormDescription>
                       URL to a screenshot or preview image of your project.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              /> */}
+
+              {/* Image Upload */}
+              <FormField
+                control={form.control}
+                name="image"
+                render={({ field: { onChange } }) => (
+                  <FormItem>
+                    <FormLabel>Project Image</FormLabel>
+                    <FormControl>
+                      <ImageUpload
+                        onFileChange={(file) => {
+                          onChange(file ? [file] : undefined); // Update form state
+                        }}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Upload an image for your project (PNG, JPG, WEBP up to
+                      5MB).
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
