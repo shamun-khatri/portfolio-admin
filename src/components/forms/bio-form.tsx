@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/form";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { is } from "zod/v4/locales";
 
 export function BioForm() {
   const { data, isLoading, error } = useBio();
@@ -34,7 +35,7 @@ export function BioForm() {
   const updateBio = useUpdateBio();
   const [isEditing, setIsEditing] = useState(false);
 
-  const existingBio = data;
+  const existingBio = data && Object.keys(data).length > 0 ? data : null;
   const isUpdateMode = !!existingBio;
 
   const form = useForm<BioFormData>({
@@ -66,7 +67,7 @@ export function BioForm() {
         resumeUrl: existingBio?.resumeUrl || "",
       });
     }
-  }, [isLoading, existingBio, form]);
+  }, [isLoading, existingBio, form, data]);
 
   const onSubmit = async (data: BioFormData) => {
     try {
