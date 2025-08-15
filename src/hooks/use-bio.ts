@@ -49,10 +49,11 @@ const createBio = async (data: BioFormData): Promise<Bio | null> => {
 };
 
 const updateBio = async (data: BioFormData): Promise<Bio | null> => {
-  const response = await fetch("/api/bio", {
+  const formData = toFormData(data);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bio`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
+    credentials: "include",
+    body: formData,
   });
   if (!response.ok) {
     throw new Error("Failed to update bio");
