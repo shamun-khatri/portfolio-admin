@@ -132,22 +132,32 @@ export default function CreateProjectForm() {
     },
   });
 
-  const toFormData = (
-    data: Record<string, string | string[] | File | undefined>
-  ): FormData => {
+  const toFormData = (data: Record<string, any>): FormData => {
     const formData = new FormData();
 
     Object.entries(data).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+
+      // Handle array values
       if (Array.isArray(value)) {
-        // Handle arrays (e.g., tags)
-        formData.append(key, JSON.stringify(value));
-      } else if (value instanceof File) {
-        // Handle file uploads
-        formData.append(key, value);
-      } else if (value !== undefined && value !== null) {
-        // Handle other fields
-        formData.append(key, value);
+        // Array of Files (e.g. [File])
+        if (value.length && value.every((v) => v instanceof File)) {
+          value.forEach((file) => formData.append(key, file));
+        } else {
+          // Primitive/string arrays (e.g. tags)
+          value.forEach((v) => formData.append(`${key}[]`, String(v)));
+        }
+        return;
       }
+
+      // Single File
+      if (value instanceof File) {
+        formData.append(key, value);
+        return;
+      }
+
+      // Other primitives
+      formData.append(key, String(value));
     });
 
     return formData;
