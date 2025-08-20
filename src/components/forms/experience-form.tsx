@@ -14,8 +14,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useState } from "react";
+import Image from "next/image";
 import { UseFormReturn } from "react-hook-form";
 import { ExperienceFormValues } from "./form-schemas/experience-schema";
+import { ExperienceUpdateFormValues } from "./form-schemas/experience-update-schema";
 
 const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
@@ -24,15 +26,25 @@ const ACCEPTED_IMAGE_TYPES = [
   "image/webp",
 ];
 
-const ExperienceForm = ({
+type ExperienceFormValuesUnion = ExperienceFormValues | ExperienceUpdateFormValues;
+
+interface ExperienceFormProps {
+  form: UseFormReturn<ExperienceFormValuesUnion>;
+  handleSubmit: (data: ExperienceFormValuesUnion) => void;
+  initialPreview?: string | null;
+  submitLabel?: string;
+  resetLabel?: string;
+}
+
+function ExperienceForm({
   form,
   handleSubmit,
-}: {
-  form: UseFormReturn<ExperienceFormValues>;
-  handleSubmit: (data: ExperienceFormValues) => void;
-}) => {
+  initialPreview,
+  submitLabel = "Create Experience",
+  resetLabel = "Reset",
+}: ExperienceFormProps) {
   const [dragActive, setDragActive] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(initialPreview || null);
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -201,11 +213,14 @@ const ExperienceForm = ({
 
                   {preview && (
                     <div className="relative">
-                      <img
-                        src={preview || "/placeholder.svg"}
-                        alt="Preview"
-                        className="w-full h-48 object-cover rounded-lg"
-                      />
+                      <div className="w-full h-48 relative overflow-hidden rounded-lg">
+                        <Image
+                          src={preview || "/placeholder.svg"}
+                          alt="Preview"
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
                       <Button
                         type="button"
                         variant="destructive"
@@ -226,22 +241,22 @@ const ExperienceForm = ({
 
         <div className="flex gap-4">
           <Button type="submit" className="flex-1">
-            Create Experience
+            {submitLabel}
           </Button>
           <Button
             type="button"
             variant="outline"
             onClick={() => {
               form.reset();
-              setPreview(null);
+              setPreview(initialPreview || null);
             }}
           >
-            Reset
+            {resetLabel}
           </Button>
         </div>
       </form>
     </Form>
   );
-};
+}
 
 export default ExperienceForm;
