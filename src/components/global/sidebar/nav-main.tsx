@@ -38,10 +38,20 @@ export function NavMain({
   const pathname = usePathname();
   const [openKeys, setOpenKeys] = useState<Record<string, boolean>>({});
 
-  // On route change, reset manual open states so only the active submenu auto-opens.
+  // On route change, open only the active parent submenu by default.
   useEffect(() => {
-    setOpenKeys({});
-  }, [pathname]);
+    const next: Record<string, boolean> = {};
+    items.forEach((it) => {
+      if (it.items?.length) {
+        const key = normalize(it.url);
+  const active = pathname === key || pathname.startsWith(key + "/");
+  if (active) {
+          next[key] = true; // auto-open current tab's submenu
+        }
+      }
+    });
+    setOpenKeys(next);
+  }, [pathname, items]);
 
   const normalize = (u: string) => (u?.startsWith("/") ? u : `/${u}`);
   const isActive = (path: string, href: string) => {
@@ -63,7 +73,7 @@ export function NavMain({
           const itemActive = isActive(pathname, itemUrl) || anySubActive;
           const key = itemUrl;
           // Auto-open when a child is active; otherwise rely on manual toggle state.
-          const open = hasChildren && (anySubActive || !!openKeys[key]);
+          const open = hasChildren && (!!openKeys[key] || anySubActive);
 
           return (
             <Collapsible
