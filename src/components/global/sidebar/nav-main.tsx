@@ -44,8 +44,8 @@ export function NavMain({
     items.forEach((it) => {
       if (it.items?.length) {
         const key = normalize(it.url);
-  const active = pathname === key || pathname.startsWith(key + "/");
-  if (active) {
+        const active = pathname === key || pathname.startsWith(key + "/");
+        if (active) {
           next[key] = true; // auto-open current tab's submenu
         }
       }
@@ -80,10 +80,16 @@ export function NavMain({
               key={item.title}
               asChild
               open={open}
-              onOpenChange={(o) => setOpenKeys((prev) => ({ ...prev, [key]: o }))}
+              onOpenChange={(o) =>
+                setOpenKeys((prev) => ({ ...prev, [key]: o }))
+              }
             >
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip={item.title} isActive={itemActive}>
+                <SidebarMenuButton
+                  asChild
+                  tooltip={item.title}
+                  isActive={itemActive}
+                >
                   <a href={itemUrl}>
                     <item.icon />
                     <span>{item.title}</span>
@@ -103,7 +109,10 @@ export function NavMain({
                           const subActive = isActive(pathname, subItem.url);
                           return (
                             <SidebarMenuSubItem key={subItem.title}>
-                              <SidebarMenuSubButton asChild isActive={subActive}>
+                              <SidebarMenuSubButton
+                                asChild
+                                isActive={subActive}
+                              >
                                 <a href={normalize(subItem.url)}>
                                   <span>{subItem.title}</span>
                                 </a>
