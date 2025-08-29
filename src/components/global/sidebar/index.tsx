@@ -83,6 +83,17 @@ const data = {
         },
       ],
     },
+    {
+      title: "education",
+      url: "/education",
+      icon: Settings2,
+      items: [
+        {
+          title: "Create",
+          url: "/education/create",
+        },
+      ],
+    },
   ],
   // navSecondary: [
   //   {
