@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  bioSchema,
+  bioCreateSchema,
   type BioFormData,
   type Bio,
 } from "../forms/form-schemas/bio-schema";
@@ -28,12 +28,12 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
   const isUpdateMode = !!existingBio;
 
   const form = useForm<BioFormData>({
-    resolver: zodResolver(bioSchema),
+    resolver: zodResolver(bioCreateSchema),
     defaultValues: {
       name: "",
       designations: [""],
       desc: "",
-      profileImage: "",
+      profileImage: undefined, // Changed from "" to undefined for file field
       resumeUrl: "",
     },
   });
@@ -45,7 +45,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
         name: existingBio?.name || "",
         designations: existingBio?.designations || [""],
         desc: existingBio?.desc || "",
-        profileImage: existingBio?.profileImage || "",
+        profileImage: undefined, // Reset to undefined for edit mode
         resumeUrl: existingBio?.resumeUrl || "",
       });
     }
@@ -54,12 +54,21 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
   const handleSubmit = async (data: BioFormData) => {
     try {
       let result: Bio | null;
+
+      // Log what's being sent
+      console.log("Bio form data:", data);
+
       if (isUpdateMode) {
         result = await updateBio.mutateAsync(data);
         setIsEditing(false);
       } else {
+        // Validate that image is present for create mode
+        if (!data.profileImage || !data.profileImage.length) {
+          throw new Error("Profile image is required for new bio creation");
+        }
         result = await createBio.mutateAsync(data);
       }
+
       if (result) {
         onSuccess?.(result);
       }
@@ -71,7 +80,6 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
       console.error(errorMessage, error);
     }
   };
-
   const handleEdit = () => {
     setIsEditing(true);
   };
@@ -83,7 +91,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
         name: existingBio.name,
         designations: existingBio.designations,
         desc: existingBio.desc,
-        profileImage: existingBio.profileImage,
+        profileImage: undefined, // Reset to undefined for cancel
         resumeUrl: existingBio.resumeUrl || "",
       });
     }
@@ -93,7 +101,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
 
   if (isLoading) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="w-full max-w-4xl mx-auto">
         <CardContent className="p-6">
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-muted rounded w-1/4"></div>
@@ -108,7 +116,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
 
   if (error) {
     return (
-      <Card className="w-full max-w-2xl mx-auto">
+      <Card className="w-full max-w-4xl mx-auto">
         <CardContent className="p-6">
           <p className="text-destructive">Error loading bio data</p>
         </CardContent>
@@ -128,7 +136,8 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
       onSubmit={handleSubmit}
       onCancel={isUpdateMode ? handleCancel : undefined}
       isSubmitting={isSubmitting}
-      isUpdateMode={isUpdateMode}
+      mode={isUpdateMode ? "edit" : "create"}
+      existingImageUrl={existingBio?.profileImage}
     />
   );
 }
