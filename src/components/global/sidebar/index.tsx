@@ -3,7 +3,7 @@
 import * as React from "react";
 import {
   BookOpen,
-  Bot,
+  Code,
   Command,
   Frame,
   LifeBuoy,
@@ -12,6 +12,7 @@ import {
   Send,
   Settings2,
   SquareTerminal,
+  User,
 } from "lucide-react";
 
 import {
@@ -37,27 +38,19 @@ const data = {
   navMain: [
     {
       title: "Bio",
-      url: "bio",
-      icon: SquareTerminal,
+      url: "/bio",
+      icon: User,
       isActive: true,
     },
     {
       title: "Skills",
-      url: "skills",
-      icon: Bot,
+      url: "/skills",
+      icon: Code,
       isActive: true,
       items: [
         {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
+          title: "Create",
+          url: "/skills/create",
         },
       ],
     },
