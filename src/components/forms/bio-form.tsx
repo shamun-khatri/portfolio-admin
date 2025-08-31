@@ -1,6 +1,7 @@
 import React from "react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
-import { Plus, X, User } from "lucide-react";
+import { Plus, X, User, Upload } from "lucide-react";
+import Image from "next/image";
 import { type BioFormData } from "./form-schemas/bio-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,13 +23,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import ImageUpload from "@/components/global/image-upload";
 
 interface BioFormProps {
   form: UseFormReturn<BioFormData>;
   onSubmit: (data: BioFormData) => void | Promise<void>;
   onCancel?: () => void;
   isSubmitting?: boolean;
-  isUpdateMode?: boolean;
+  mode?: "create" | "edit";
+  existingImageUrl?: string;
 }
 
 export function BioForm({
@@ -36,7 +39,8 @@ export function BioForm({
   onSubmit,
   onCancel,
   isSubmitting = false,
-  isUpdateMode = false,
+  mode = "create",
+  existingImageUrl,
 }: BioFormProps) {
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -53,14 +57,14 @@ export function BioForm({
     }
   };
   return (
-    <Card className="w-full max-w-2xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          {isUpdateMode ? "Edit Your Bio" : "Create Your Bio"}
+          {mode === "edit" ? "Edit Your Bio" : "Create Your Bio"}
         </CardTitle>
         <CardDescription>
-          {isUpdateMode
+          {mode === "edit"
             ? "Update your professional bio information"
             : "Fill in your professional bio information"}
         </CardDescription>
@@ -156,22 +160,58 @@ export function BioForm({
             <FormField
               control={form.control}
               name="profileImage"
-              render={({ field }) => (
+              render={({ field: { onChange } }) => (
                 <FormItem>
-                  <FormLabel>Profile Image URL (Optional)</FormLabel>
+                  <FormLabel className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    Profile Image{" "}
+                    {mode === "edit" ? "(Upload new to replace)" : "*Required"}
+                  </FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="https://example.com/your-photo.jpg"
-                      {...field}
+                    <ImageUpload
+                      onFileChange={(file) => {
+                        console.log(
+                          "ImageUpload onFileChange called with:",
+                          file
+                        );
+                        if (file) {
+                          // Create an array to handle the file
+                          const fileArray = [file];
+                          onChange(fileArray as unknown as FileList);
+                        } else {
+                          onChange(undefined);
+                        }
+                      }}
                     />
                   </FormControl>
                   <FormDescription>
-                    Link to your professional profile photo
+                    {mode === "create"
+                      ? "Upload your professional profile photo (PNG, JPG, WEBP up to 5MB). Required."
+                      : "Upload your professional profile photo (PNG, JPG, WEBP up to 5MB). Leave empty to keep current image."}
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            {/* Show existing image preview in edit mode */}
+            {mode === "edit" && existingImageUrl && (
+              <div className="space-y-2">
+                <FormLabel>Current Profile Image</FormLabel>
+                <div className="relative w-32 h-32 rounded-lg overflow-hidden border">
+                  <Image
+                    src={existingImageUrl}
+                    alt="Current profile"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 128px) 100vw, 128px"
+                  />
+                </div>
+                <FormDescription className="text-sm text-muted-foreground">
+                  Upload a new image above to replace this one
+                </FormDescription>
+              </div>
+            )}
 
             <FormField
               control={form.control}
@@ -194,10 +234,10 @@ export function BioForm({
             <div className="flex gap-3 pt-4">
               <Button type="submit" disabled={isSubmitting} className="flex-1">
                 {isSubmitting
-                  ? isUpdateMode
+                  ? mode === "edit"
                     ? "Updating..."
                     : "Creating..."
-                  : isUpdateMode
+                  : mode === "edit"
                   ? "Update Bio"
                   : "Create Bio"}
               </Button>
