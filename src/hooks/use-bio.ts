@@ -5,22 +5,26 @@ import type {
 } from "../components/forms/form-schemas/bio-schema";
 
 const toFormData = (
-  data: Record<string, string | string[] | File | undefined>
+  data: BioFormData
 ): FormData => {
   const formData = new FormData();
 
-  Object.entries(data).forEach(([key, value]) => {
-    if (Array.isArray(value)) {
-      // Handle arrays (e.g., tags)
-      formData.append(key, JSON.stringify(value));
-    } else if (value instanceof File) {
-      // Handle file uploads
-      formData.append(key, value);
-    } else if (value !== undefined && value !== null) {
-      // Handle other fields
-      formData.append(key, value);
+  // Handle basic fields
+  formData.append("name", data.name);
+  formData.append("designations", JSON.stringify(data.designations));
+  formData.append("desc", data.desc);
+  
+  if (data.resumeUrl && data.resumeUrl.trim() !== "") {
+    formData.append("resumeUrl", data.resumeUrl);
+  }
+  
+  // Handle profile image file
+  if (data.profileImage && data.profileImage.length > 0) {
+    const file = data.profileImage[0];
+    if (file instanceof File) {
+      formData.append("profileImage", file);
     }
-  });
+  }
 
   return formData;
 };
