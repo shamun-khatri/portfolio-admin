@@ -48,9 +48,9 @@ const fetchGroupedSkills = async (): Promise<GroupedSkills> => {
 };
 
 // Fetch single skill
-const fetchSkill = async (id: string): Promise<Skill> => {
+const fetchSkill = async (userId: string, id: string): Promise<Skill> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skill/id/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/skill/${userId}/${id}`,
     {
       credentials: "include",
       cache: "no-store",
@@ -116,10 +116,10 @@ export const useGroupedSkills = () => {
   });
 };
 
-export const useSkill = (id: string) => {
+export const useSkill = (userId: string, id: string) => {
   return useQuery<Skill>({
     queryKey: ["skills", id],
-    queryFn: () => fetchSkill(id),
+    queryFn: () => fetchSkill(userId, id),
     enabled: !!id,
   });
 };
