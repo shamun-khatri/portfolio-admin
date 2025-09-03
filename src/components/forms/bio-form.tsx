@@ -165,7 +165,9 @@ export function BioForm({
                   <FormLabel className="flex items-center gap-2">
                     <Upload className="h-4 w-4" />
                     Profile Image{" "}
-                    {mode === "edit" ? "(Upload new to replace)" : "*Required"}
+                    {mode === "edit"
+                      ? "(Optional - Upload new to replace)"
+                      : "*Required"}
                   </FormLabel>
                   <FormControl>
                     <ImageUpload

@@ -3,7 +3,7 @@ import { z } from "zod";
 // Constants for image validation
 export const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",
-  "image/jpg", 
+  "image/jpg",
   "image/png",
   "image/webp",
 ] as const;
@@ -23,11 +23,7 @@ const baseBioSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description must be less than 1000 characters"),
-  resumeUrl: z
-    .string()
-    .url("Must be a valid URL")
-    .optional()
-    .or(z.literal("")),
+  resumeUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 // Create schema (profile image required)
@@ -51,11 +47,15 @@ export const bioUpdateSchema = baseBioSchema.extend({
     .any()
     .optional()
     .refine(
-      (files) => !files || files.length === 0 || files?.[0]?.size <= MAX_FILE_SIZE,
+      (files) =>
+        !files || files.length === 0 || files?.[0]?.size <= MAX_FILE_SIZE,
       "Max file size is 5MB"
     )
     .refine(
-      (files) => !files || files.length === 0 || ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
+      (files) =>
+        !files ||
+        files.length === 0 ||
+        ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
       "Only .jpg, .jpeg, .png, and .webp formats are supported"
     ),
 });
@@ -64,10 +64,10 @@ export const bioUpdateSchema = baseBioSchema.extend({
 export const bioSchema = bioCreateSchema.or(bioUpdateSchema);
 
 export type BioFormData = z.infer<typeof bioCreateSchema>;
+export type BioUpdateFormData = z.infer<typeof bioUpdateSchema>;
 
 // Helper types for mode validation
 export type BioCreateFormData = z.infer<typeof bioCreateSchema>;
-export type BioUpdateFormData = z.infer<typeof bioUpdateSchema>;
 
 // Server response type
 export type Bio = {
@@ -78,27 +78,4 @@ export type Bio = {
   profileImage: string; // This will be the URL after upload
   resumeUrl: string | null;
   userId: string;
-};
-
-// Utility function to convert form data to FormData for API
-export const toFormData = (data: BioFormData): FormData => {
-  const formData = new FormData();
-  
-  formData.append("name", data.name);
-  formData.append("designations", JSON.stringify(data.designations));
-  formData.append("desc", data.desc);
-  
-  if (data.resumeUrl && data.resumeUrl.trim() !== "") {
-    formData.append("resumeUrl", data.resumeUrl);
-  }
-  
-  // Handle profile image file
-  if (data.profileImage && data.profileImage.length > 0) {
-    const file = data.profileImage[0];
-    if (file instanceof File) {
-      formData.append("profileImage", file);
-    }
-  }
-  
-  return formData;
 };

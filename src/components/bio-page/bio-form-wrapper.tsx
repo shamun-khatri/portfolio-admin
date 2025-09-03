@@ -28,7 +28,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
   const isUpdateMode = !!existingBio;
 
   const form = useForm<BioFormData>({
-    resolver: zodResolver(bioCreateSchema),
+    resolver: zodResolver(bioCreateSchema), // Always use create schema for typing
     defaultValues: {
       name: "",
       designations: [""],
@@ -59,6 +59,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
       console.log("Bio form data:", data);
 
       if (isUpdateMode) {
+        // For updates, image is optional - don't validate it
         result = await updateBio.mutateAsync(data);
         setIsEditing(false);
       } else {
