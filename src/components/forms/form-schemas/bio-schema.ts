@@ -60,10 +60,10 @@ export const bioUpdateSchema = baseBioSchema.extend({
     ),
 });
 
-// Union schema for form validation
+// Union schema for form validation (handles both create and update)
 export const bioSchema = bioCreateSchema.or(bioUpdateSchema);
 
-export type BioFormData = z.infer<typeof bioCreateSchema>;
+export type BioFormData = z.infer<typeof bioSchema>;
 export type BioUpdateFormData = z.infer<typeof bioUpdateSchema>;
 
 // Helper types for mode validation

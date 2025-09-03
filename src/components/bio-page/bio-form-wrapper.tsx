@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  bioCreateSchema,
+  bioSchema,
   type BioFormData,
   type Bio,
 } from "../forms/form-schemas/bio-schema";
@@ -28,7 +28,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
   const isUpdateMode = !!existingBio;
 
   const form = useForm<BioFormData>({
-    resolver: zodResolver(bioCreateSchema), // Always use create schema for typing
+    resolver: zodResolver(bioSchema),
     defaultValues: {
       name: "",
       designations: [""],
@@ -63,7 +63,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
         result = await updateBio.mutateAsync(data);
         setIsEditing(false);
       } else {
-        // Validate that image is present for create mode
+        // For create mode, validate that image is present
         if (!data.profileImage || !data.profileImage.length) {
           throw new Error("Profile image is required for new bio creation");
         }
