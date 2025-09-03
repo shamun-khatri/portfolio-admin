@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Plus, Edit, Trash2, Code, Loader2 } from "lucide-react";
+import { Plus, Edit, Trash2, BrainCircuit, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,7 +39,7 @@ export default function SkillsPage() {
             <div className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-                  <Code className="h-6 w-6 text-white" />
+                  <BrainCircuit className="h-6 w-6 text-white" />
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground via-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-foreground dark:via-blue-400 dark:to-purple-400">
@@ -78,7 +78,7 @@ export default function SkillsPage() {
         <div className="container mx-auto py-8 px-4">
           <div className="text-center">
             <div className="w-24 h-24 rounded-full bg-gradient-to-br from-destructive/10 to-destructive/20 dark:from-destructive/20 dark:to-destructive/30 flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Code className="h-12 w-12 text-destructive" />
+              <BrainCircuit className="h-12 w-12 text-destructive" />
             </div>
             <h1 className="text-3xl font-bold text-destructive mb-3">
               Unable to Load Skills
@@ -106,7 +106,7 @@ export default function SkillsPage() {
           <div className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
-                <Code className="h-6 w-6 text-white" />
+                <BrainCircuit className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground via-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-foreground dark:via-blue-400 dark:to-purple-400">
@@ -153,7 +153,7 @@ export default function SkillsPage() {
           <Card className="text-center py-16 shadow-xl">
             <CardContent>
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-950 dark:to-purple-950 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <Code className="h-12 w-12 text-blue-600 dark:text-blue-400" />
+                <BrainCircuit className="h-12 w-12 text-blue-600 dark:text-blue-400" />
               </div>
               <h3 className="text-2xl font-bold mb-3 bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">
                 No Skills Added Yet
