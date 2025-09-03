@@ -345,7 +345,7 @@ export default function ProjectsPage() {
                               className="inline-flex items-center gap-1 hover:text-foreground"
                             >
                               <Github className="h-3 w-3" />
-                              Code
+                              BrainCircuit
                             </a>
                           )}
                           {p.projectUrl && (
