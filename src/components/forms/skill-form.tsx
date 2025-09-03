@@ -1,6 +1,6 @@
 import React from "react";
 import { UseFormReturn } from "react-hook-form";
-import { Code, Upload } from "lucide-react";
+import { BrainCircuit, Upload } from "lucide-react";
 import Image from "next/image";
 import { type SkillFormData } from "./form-schemas/skill-schema";
 import { Button } from "@/components/ui/button";
@@ -39,7 +39,7 @@ export function SkillForm({
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Code className="h-5 w-5" />
+          <BrainCircuit className="h-5 w-5" />
           {mode === "edit" ? "Edit Skill" : "Add New Skill"}
         </CardTitle>
       </CardHeader>
