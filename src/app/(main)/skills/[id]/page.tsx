@@ -9,22 +9,33 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Edit, Eye, Code, Tag, Loader2, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Edit,
+  Eye,
+  BrainCircuit,
+  Tag,
+  Loader2,
+  Trash2,
+} from "lucide-react";
 import SkillForm from "@/components/forms/skill-form";
 import { useSkill, useUpdateSkill, useDeleteSkill } from "@/hooks/use-skills";
 import {
   skillCreateSchema,
   type SkillFormData,
 } from "@/components/forms/form-schemas/skill-schema";
+import { useSession } from "next-auth/react";
 
 export default function SkillDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { data } = useSession();
   const skillId = params.id as string;
+  const userId = data?.user?.id;
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: skill, isLoading, error } = useSkill(skillId);
+  const { data: skill, isLoading, error } = useSkill(userId!, skillId);
   const updateSkillMutation = useUpdateSkill(skillId);
   const deleteSkillMutation = useDeleteSkill();
 
@@ -88,7 +99,7 @@ export default function SkillDetailPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !userId) {
     return (
       <div className="container mx-auto py-6 px-4">
         <div className="flex items-center gap-4 mb-8">
@@ -200,7 +211,7 @@ export default function SkillDetailPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
-                <Code className="h-6 w-6 text-primary" />
+                <BrainCircuit className="h-6 w-6 text-primary" />
                 <CardTitle className="text-2xl">{skill.name}</CardTitle>
               </div>
               <Badge variant="secondary" className="text-sm capitalize">
@@ -238,7 +249,7 @@ export default function SkillDetailPage() {
           {/* Skill Icon */}
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-              <Code className="h-4 w-4" />
+              <BrainCircuit className="h-4 w-4" />
               Skill Icon
             </div>
             <div className="flex items-center gap-4">
@@ -264,7 +275,7 @@ export default function SkillDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Code className="h-4 w-4" />
+                <BrainCircuit className="h-4 w-4" />
                 Skill Name
               </div>
               <p className="text-lg font-medium">{skill.name}</p>
