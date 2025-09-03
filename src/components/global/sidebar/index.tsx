@@ -3,12 +3,14 @@
 import * as React from "react";
 import {
   BookOpen,
-  Code,
+  BrainCircuit,
   Command,
   Frame,
+  GraduationCap,
   LifeBuoy,
   Map,
   PieChart,
+  Projector,
   Send,
   Settings2,
   SquareTerminal,
@@ -45,7 +47,7 @@ const data = {
     {
       title: "Skills",
       url: "/skills",
-      icon: Code,
+      icon: BrainCircuit,
       isActive: true,
       items: [
         {
@@ -68,7 +70,7 @@ const data = {
     {
       title: "project",
       url: "/project",
-      icon: Settings2,
+      icon: Projector,
       items: [
         {
           title: "Create",
@@ -79,7 +81,7 @@ const data = {
     {
       title: "education",
       url: "/education",
-      icon: Settings2,
+      icon: GraduationCap,
       items: [
         {
           title: "Create",
