@@ -5,15 +5,13 @@ import type {
   GroupedSkills,
 } from "../components/forms/form-schemas/skill-schema";
 
-const toFormData = (
-  data: SkillFormData
-): FormData => {
+const toFormData = (data: SkillFormData): FormData => {
   const formData = new FormData();
 
   // Handle basic fields
   formData.append("name", data.name);
   formData.append("category", data.category);
-  
+
   // Handle icon file
   if (data.icon && data.icon.length > 0) {
     const file = data.icon[0];
@@ -28,7 +26,7 @@ const toFormData = (
 // Fetch all skills
 const fetchSkills = async (): Promise<Skill[]> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skill/111316734788280692226`
+    `${process.env.NEXT_PUBLIC_API_URL}/skills/111316734788280692226`
   );
   if (!response.ok) {
     throw new Error("Failed to fetch skills");
@@ -39,7 +37,7 @@ const fetchSkills = async (): Promise<Skill[]> => {
 // Fetch grouped skills
 const fetchGroupedSkills = async (): Promise<GroupedSkills> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skill/111316734788280692226/grouped`
+    `${process.env.NEXT_PUBLIC_API_URL}/skills/111316734788280692226/grouped`
   );
   if (!response.ok) {
     throw new Error("Failed to fetch grouped skills");
@@ -50,7 +48,7 @@ const fetchGroupedSkills = async (): Promise<GroupedSkills> => {
 // Fetch single skill
 const fetchSkill = async (userId: string, id: string): Promise<Skill> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skill/${userId}/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}/${id}`,
     {
       credentials: "include",
       cache: "no-store",
@@ -65,7 +63,7 @@ const fetchSkill = async (userId: string, id: string): Promise<Skill> => {
 // Create skill
 const createSkill = async (data: SkillFormData): Promise<Skill> => {
   const formData = toFormData(data);
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/skill`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/skills`, {
     method: "POST",
     credentials: "include",
     body: formData,
@@ -79,11 +77,14 @@ const createSkill = async (data: SkillFormData): Promise<Skill> => {
 // Update skill
 const updateSkill = async (id: string, data: SkillFormData): Promise<Skill> => {
   const formData = toFormData(data);
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/skill/${id}`, {
-    method: "PUT",
-    credentials: "include",
-    body: formData,
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/skills/${id}`,
+    {
+      method: "PUT",
+      credentials: "include",
+      body: formData,
+    }
+  );
   if (!response.ok) {
     throw new Error("Failed to update skill");
   }
@@ -92,10 +93,13 @@ const updateSkill = async (id: string, data: SkillFormData): Promise<Skill> => {
 
 // Delete skill
 const deleteSkill = async (id: string): Promise<void> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/skill/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/skills/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    }
+  );
   if (!response.ok) {
     throw new Error("Failed to delete skill");
   }
@@ -126,7 +130,7 @@ export const useSkill = (userId: string, id: string) => {
 
 export const useCreateSkill = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: createSkill,
     onSuccess: () => {
@@ -137,7 +141,7 @@ export const useCreateSkill = () => {
 
 export const useUpdateSkill = (id: string) => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: (data: SkillFormData) => updateSkill(id, data),
     onSuccess: () => {
@@ -149,7 +153,7 @@ export const useUpdateSkill = (id: string) => {
 
 export const useDeleteSkill = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: deleteSkill,
     onSuccess: () => {
