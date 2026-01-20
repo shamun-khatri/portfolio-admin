@@ -44,7 +44,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           // Check if the user already exists in your database
           console.log("account login");
           const existingUser = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/user/getuser?email=${user.email}`
+            `${process.env.NEXT_PUBLIC_API_URL}/users/getuser?email=${user.email}`
           ).then((res) => res.json());
           console.log("existingUser", existingUser);
           if (existingUser.length === 0) {
