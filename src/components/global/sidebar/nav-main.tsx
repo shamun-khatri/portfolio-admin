@@ -89,10 +89,11 @@ export function NavMain({
                   asChild
                   tooltip={item.title}
                   isActive={itemActive}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-primary/8 hover:text-sidebar-primary-foreground transition-colors`}
                 >
-                  <a href={itemUrl}>
-                    <item.icon />
-                    <span>{item.title}</span>
+                  <a href={itemUrl} className="flex items-center gap-3">
+                    <item.icon className="opacity-90" />
+                    <span className="truncate">{item.title}</span>
                   </a>
                 </SidebarMenuButton>
                 {hasChildren ? (
@@ -112,6 +113,7 @@ export function NavMain({
                               <SidebarMenuSubButton
                                 asChild
                                 isActive={subActive}
+                                className="pl-8 pr-3 py-2 rounded-md text-sidebar-foreground hover:bg-sidebar-primary/6 hover:text-sidebar-primary-foreground transition-colors"
                               >
                                 <a href={normalize(subItem.url)}>
                                   <span>{subItem.title}</span>

@@ -267,8 +267,8 @@ export default function ProjectsPage() {
     refetch,
     isFetching,
   } = useQuery({
-    queryKey: ["projects-all", userId],
-    queryFn: () => fetchAllProjects(userId),
+    queryKey: ["projects-all", userId ?? ""],
+    queryFn: () => fetchAllProjects(userId ?? ""),
     enabled: !!userId,
     staleTime: 1000 * 60,
     refetchOnWindowFocus: false,
@@ -284,8 +284,10 @@ export default function ProjectsPage() {
 
   // Mutation for saving positions
   const savePositionsMutation = useMutation({
-    mutationFn: (order: string[]) =>
-      updateProjectsPosition(userId, order),
+    mutationFn: (order: string[]) => {
+      if (!userId) return Promise.reject(new Error("No userId"));
+      return updateProjectsPosition(userId, order);
+    },
     onSuccess: (data) => {
       setHasChanges(false);
       // Optional: Directly update the state with returned data to avoid an extra refetch

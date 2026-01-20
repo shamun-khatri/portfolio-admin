@@ -42,10 +42,13 @@ export function NavProjects({
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild>
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
+            <SidebarMenuButton
+              asChild
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-primary/8 hover:text-sidebar-primary-foreground transition-colors"
+            >
+              <a href={item.url} className="flex items-center gap-3">
+                <item.icon className="opacity-90" />
+                <span className="truncate">{item.name}</span>
               </a>
             </SidebarMenuButton>
             <DropdownMenu>
