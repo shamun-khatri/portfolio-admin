@@ -76,11 +76,7 @@ const toFormData = (data: Record<string, unknown>): FormData => {
 // API Functions
 const fetchProject = async (id: string): Promise<Project> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/project/id/${id}`,
-    {
-      credentials: "include",
-      cache: "no-store",
-    }
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/id/${id}`
   );
 
   if (!response.ok) {
@@ -114,7 +110,7 @@ const updateProject = async (
   const formData = toFormData(data);
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/project/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`,
     {
       method: "PUT",
       body: formData,
@@ -131,7 +127,7 @@ const updateProject = async (
 
 const deleteProject = async (id: string): Promise<void> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/project/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`,
     {
       method: "DELETE",
       credentials: "include",

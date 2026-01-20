@@ -54,7 +54,7 @@ const toFormData = (data: Record<string, unknown>): FormData => {
 
 // API function
 const createProject = async (data: FormData) => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/project`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects`, {
     method: "POST",
     body: data,
     credentials: "include",
