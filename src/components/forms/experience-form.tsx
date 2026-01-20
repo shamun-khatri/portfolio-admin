@@ -197,8 +197,8 @@ export default function ExperienceForm({
     }
 
     const url = isEditMode
-      ? `${process.env.NEXT_PUBLIC_API_URL}/experience/${experienceId}`
-      : `${process.env.NEXT_PUBLIC_API_URL}/experience`;
+      ? `${process.env.NEXT_PUBLIC_API_URL}/experiences/${experienceId}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/experiences`;
 
     const method = isEditMode ? "PUT" : "POST";
 
