@@ -36,93 +36,104 @@ export function SkillForm({
   existingIconUrl,
 }: SkillFormProps) {
   return (
-    <Card className="w-full max-w-2xl mx-auto">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BrainCircuit className="h-5 w-5" />
-          {mode === "edit" ? "Edit Skill" : "Add New Skill"}
-        </CardTitle>
+    <Card className="max-w-xl mx-auto relative overflow-hidden bg-card/60 backdrop-blur-xl border-border/40 shadow-2xl rounded-[32px]">
+      {/* Decorative Gradient elements */}
+      <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/5 blur-[80px] -z-10 rounded-full" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-purple-500/5 blur-[80px] -z-10 rounded-full" />
+
+      <CardHeader className="p-8 pb-4">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center shadow-2xl transform -rotate-3 transition-transform hover:rotate-0 duration-500">
+            <BrainCircuit className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-xl font-black tracking-tight uppercase">
+              {mode === "edit" ? "Refine Skillset" : "New Capability"}
+            </CardTitle>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
+
+      <CardContent className="p-8 pt-4">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Skill Name */}
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Skill Name *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., React, Python, Figma"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Enter the name of the skill or technology
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="space-y-6">
+              {/* Skill Name */}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-blue-500/80">
+                      Technical Name
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <Input
+                          placeholder="e.g. Next.js, Rust, Figma"
+                          {...field}
+                          className="bg-background/40 border-border/40 focus:border-blue-500/50 focus:ring-blue-500/10 rounded-2xl h-14 px-6 font-bold transition-all"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            {/* Category */}
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category *</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., Frontend, Backend, Design, Tools"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Category to group this skill under
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Category */}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-purple-500/80">
+                      Expertise Domain
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative group">
+                        <Input
+                          placeholder="e.g. Frontend, Infrastructure, AI"
+                          {...field}
+                          className="bg-background/40 border-border/40 focus:border-purple-500/50 focus:ring-purple-500/10 rounded-2xl h-14 px-6 font-bold transition-all"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-            <Separator />
+            <Separator className="bg-border/10" />
 
             {/* Skill Icon */}
             <FormField
               control={form.control}
               name="icon"
               render={({ field: { onChange } }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-indigo-500/80 flex items-center gap-2">
                     <Upload className="h-4 w-4" />
-                    Skill Icon{" "}
-                    {mode === "edit" ? "(Upload new to replace)" : "*Required"}
+                    Asset Visualization
                   </FormLabel>
                   <FormControl>
-                    <ImageUpload
-                      onFileChange={(file) => {
-                        console.log(
-                          "ImageUpload onFileChange called with:",
-                          file
-                        );
-                        if (file) {
-                          // Create an array to handle the file
-                          const fileArray = [file];
-                          onChange(fileArray as unknown as FileList);
-                        } else {
-                          onChange(undefined);
-                        }
-                      }}
-                    />
+                    <div className="relative group">
+                      <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl blur opacity-10 group-hover:opacity-20 transition" />
+                      <div className="relative">
+                        <ImageUpload
+                          onFileChange={(file) => {
+                            if (file) {
+                              const fileArray = [file];
+                              onChange(fileArray as unknown as FileList);
+                            } else {
+                              onChange(undefined);
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
                   </FormControl>
-                  <FormDescription>
-                    {mode === "create"
-                      ? "Upload an icon for this skill (PNG, JPG, WEBP, SVG up to 2MB). Required."
-                      : "Upload an icon for this skill (PNG, JPG, WEBP, SVG up to 2MB). Leave empty to keep current icon."}
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -130,36 +141,42 @@ export function SkillForm({
 
             {/* Show existing icon preview in edit mode */}
             {mode === "edit" && existingIconUrl && (
-              <div className="space-y-2">
-                <FormLabel>Current Skill Icon</FormLabel>
-                <div className="relative w-16 h-16 rounded-lg overflow-hidden border bg-muted">
+              <div className="p-4 rounded-3xl bg-muted/20 border border-border/10 flex items-center gap-4">
+                <div className="relative w-12 h-12 rounded-xl overflow-hidden ring-2 ring-background shadow-lg bg-background">
                   <Image
                     src={existingIconUrl}
                     alt="Current skill icon"
                     fill
                     className="object-contain p-2"
-                    sizes="(max-width: 64px) 100vw, 64px"
+                    sizes="48px"
                   />
                 </div>
-                <FormDescription className="text-sm text-muted-foreground">
-                  Upload a new icon above to replace this one
-                </FormDescription>
+                <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                  Active Legacy Symbol
+                </div>
               </div>
             )}
 
             {/* Form Actions */}
-            <div className="flex gap-3 pt-4">
-              <Button type="submit" disabled={isSubmitting} className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-4 pt-6">
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white shadow-2xl hover:shadow-blue-500/30 transition-all duration-500 rounded-2xl h-14 font-black uppercase tracking-widest text-xs"
+              >
                 {isSubmitting
-                  ? mode === "edit"
-                    ? "Updating..."
-                    : "Creating..."
+                  ? "Synchronizing..."
                   : mode === "edit"
-                  ? "Update Skill"
-                  : "Create Skill"}
+                  ? "Update capability"
+                  : "Commit capability"}
               </Button>
               {onCancel && (
-                <Button type="button" variant="outline" onClick={onCancel}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={onCancel}
+                  className="rounded-2xl h-14 font-bold hover:bg-muted/30 transition-all px-8"
+                >
                   Cancel
                 </Button>
               )}

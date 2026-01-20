@@ -76,7 +76,7 @@ const toFormData = (data: Record<string, unknown>): FormData => {
 // API Functions
 const fetchProject = async (id: string): Promise<Project> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/id/${id}`
+    `${process.env.NEXT_PUBLIC_API_URL}/projects/id/${id}`,
   );
 
   if (!response.ok) {

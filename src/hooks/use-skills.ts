@@ -24,9 +24,10 @@ const toFormData = (data: SkillFormData): FormData => {
 };
 
 // Fetch all skills
-const fetchSkills = async (): Promise<Skill[]> => {
+const fetchSkills = async (userId: string): Promise<Skill[]> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skills/111316734788280692226`
+    `${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}`,
+    { credentials: "include" }
   );
   if (!response.ok) {
     throw new Error("Failed to fetch skills");
@@ -35,9 +36,9 @@ const fetchSkills = async (): Promise<Skill[]> => {
 };
 
 // Fetch grouped skills
-const fetchGroupedSkills = async (): Promise<GroupedSkills> => {
+const fetchGroupedSkills = async (userId: string): Promise<GroupedSkills> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skills/111316734788280692226/grouped`
+    `${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}/grouped`,
   );
   if (!response.ok) {
     throw new Error("Failed to fetch grouped skills");
@@ -49,10 +50,6 @@ const fetchGroupedSkills = async (): Promise<GroupedSkills> => {
 const fetchSkill = async (userId: string, id: string): Promise<Skill> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}/${id}`,
-    {
-      credentials: "include",
-      cache: "no-store",
-    }
   );
   if (!response.ok) {
     throw new Error("Failed to fetch skill");
@@ -106,17 +103,19 @@ const deleteSkill = async (id: string): Promise<void> => {
 };
 
 // Hooks
-export const useSkills = () => {
+export const useSkills = (userId: string) => {
   return useQuery<Skill[]>({
-    queryKey: ["skills"],
-    queryFn: fetchSkills,
+    queryKey: ["skills", userId],
+    queryFn: () => fetchSkills(userId),
+    enabled: !!userId,
   });
 };
 
-export const useGroupedSkills = () => {
+export const useGroupedSkills = (userId: string) => {
   return useQuery<GroupedSkills>({
-    queryKey: ["skills", "grouped"],
-    queryFn: fetchGroupedSkills,
+    queryKey: ["skills", "grouped", userId],
+    queryFn: () => fetchGroupedSkills(userId),
+    enabled: !!userId,
   });
 };
 

@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import {
   DndContext,
@@ -46,6 +47,7 @@ import {
   GripVertical,
   Save,
   Loader2,
+  Trash2,
 } from "lucide-react";
 
 interface Project {
@@ -65,7 +67,8 @@ interface Project {
 
 async function fetchAllProjects(userId: string): Promise<Project[]> {
   if (!userId) return [];
-  const res = await fetch(`http://localhost:8787/api/projects/${userId}`);
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${userId}`, {
+  });
   if (!res.ok) throw new Error("Failed to load projects");
   const json = await res.json();
   // Adjust mapping if API shape differs
@@ -81,7 +84,7 @@ async function updateProjectsPosition(
   userId: string,
   order: string[]
 ): Promise<Project[]> {
-  const res = await fetch(`http://localhost:8787/api/projects/reorder`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/reorder`, {
     method: "PATCH",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
@@ -92,7 +95,13 @@ async function updateProjectsPosition(
 }
 
 // Sortable Project Card Component
-function SortableProjectCard({ project }: { project: Project }) {
+function SortableProjectCard({
+  project,
+  onDelete,
+}: {
+  project: Project;
+  onDelete: (id: string) => void;
+}) {
   const {
     attributes,
     listeners,
@@ -105,113 +114,135 @@ function SortableProjectCard({ project }: { project: Project }) {
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 50 : "auto",
   };
 
   return (
     <Card
       ref={setNodeRef}
       style={style}
-      className="group relative flex flex-col overflow-hidden border shadow-sm transition hover:shadow-md"
+      className={`group relative flex flex-col overflow-hidden border bg-card/50 backdrop-blur-sm transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:border-blue-500/30 transform hover:-translate-y-1 ${
+        isDragging ? "shadow-2xl ring-2 ring-primary border-primary scale-[1.02] opacity-100 bg-background" : ""
+      }`}
     >
       {/* Drag Handle */}
       <div
         {...attributes}
         {...listeners}
-        className="absolute left-2 top-2 z-10 cursor-grab active:cursor-grabbing rounded bg-background/90 p-1.5 shadow-sm border hover:bg-accent transition-colors"
+        className="absolute left-3 top-3 z-20 cursor-grab active:cursor-grabbing rounded-lg bg-background/80 p-2 shadow-lg border border-border/50 hover:bg-accent transition-colors backdrop-blur-md opacity-0 group-hover:opacity-100"
       >
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
 
-      <div className="relative h-44 w-full bg-muted">
+      <div className="relative h-48 w-full bg-muted overflow-hidden">
         {project.image ? (
           <Image
             src={project.image}
             alt={project.title}
             fill
-            className="object-cover transition duration-300 group-hover:scale-[1.03]"
+            className="object-cover transition duration-500 group-hover:scale-110"
             sizes="(max-width:768px) 100vw, 33vw"
             unoptimized
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-            <FolderGit2 className="h-10 w-10" />
+          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20">
+            <FolderGit2 className="h-12 w-12 text-blue-500/30" />
           </div>
         )}
+        
+        {/* Overlay Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
         {project.category && (
-          <span className="absolute right-2 top-2 rounded bg-primary/85 px-2 py-1 text-xs font-medium text-primary-foreground backdrop-blur">
+          <span className="absolute right-3 top-3 z-10 rounded-full bg-blue-500/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white backdrop-blur shadow-lg">
             {project.category}
           </span>
         )}
       </div>
-      <CardHeader className="space-y-2">
-        <CardTitle className="line-clamp-1 pr-8 text-lg">
-          {project.title}
-        </CardTitle>
-        <CardDescription className="line-clamp-3 text-sm leading-relaxed">
+
+      <CardHeader className="space-y-3 p-5">
+        <div className="flex justify-between items-start gap-2">
+          <CardTitle className="line-clamp-1 text-xl font-bold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+            {project.title}
+          </CardTitle>
+        </div>
+        
+        <CardDescription className="line-clamp-2 text-sm leading-relaxed min-h-[40px]">
           {project.description}
         </CardDescription>
-        <div className="flex flex-wrap gap-1 pt-1">
-          {project.tags?.slice(0, 4).map((t) => (
-            <Badge key={t} variant="secondary" className="text-xs">
+
+        <div className="flex flex-wrap gap-1.5 pt-1">
+          {project.tags?.slice(0, 3).map((t) => (
+            <Badge 
+              key={t} 
+              variant="secondary" 
+              className="text-[10px] font-semibold px-2 py-0 bg-blue-500/5 text-blue-600 dark:text-blue-400 border-none hover:bg-blue-500/10"
+            >
               {t}
             </Badge>
           ))}
-          {project.tags && project.tags.length > 4 && (
-            <Badge variant="outline" className="text-xs">
-              +{project.tags.length - 4}
+          {project.tags && project.tags.length > 3 && (
+            <Badge variant="outline" className="text-[10px] px-2 py-0 border-dashed">
+              +{project.tags.length - 3}
             </Badge>
           )}
         </div>
       </CardHeader>
-      <CardContent className="mt-auto space-y-3 pb-0">
-        <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-          {project.date && (
-            <span className="inline-flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {project.date}
-            </span>
-          )}
-          {project.github && (
-            <a
-              href={project.github}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 hover:text-foreground"
+
+      <CardContent className="mt-auto p-5 pt-0">
+        <div className="flex items-center justify-between border-t border-border/50 pt-4">
+          <div className="flex gap-4">
+            {project.github && (
+              <a
+                href={project.github}
+                target="_blank"
+                rel="noreferrer"
+                className="text-muted-foreground hover:text-blue-500 transition-colors"
+                title="GitHub Repository"
+              >
+                <Github className="h-5 w-5" />
+              </a>
+            )}
+            {project.projectUrl && (
+              <a
+                href={project.projectUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-muted-foreground hover:text-blue-500 transition-colors"
+                title="Live Demo"
+              >
+                <Globe2 className="h-5 w-5" />
+              </a>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              size="icon"
+              variant="ghost"
+              className="h-8 w-8 rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => onDelete(project.id)}
             >
-              <Github className="h-3 w-3" />
-              GitHub
-            </a>
-          )}
-          {project.projectUrl && (
-            <a
-              href={project.projectUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 hover:text-foreground"
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 rounded-full text-xs font-semibold px-4 hover:bg-blue-500 hover:text-white hover:border-blue-500 transition-all duration-300"
+              onClick={() => (window.location.href = `/project/${project.id}`)}
             >
-              <Globe2 className="h-3 w-3" />
-              Live
-            </a>
-          )}
+              Manage
+            </Button>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-end gap-2">
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={() => (window.location.href = `/project/${project.id}`)}
-        >
-          Details
-          <ExternalLink className="ml-1 h-3.5 w-3.5" />
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
 
 export default function ProjectsPage() {
-  const userId = "111316734788280692226";
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   // Raw inputs (debounced for search)
   const [searchInput, setSearchInput] = useState("");
@@ -262,6 +293,26 @@ export default function ProjectsPage() {
       refetch();
     },
   });
+
+  const deleteProjectMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to delete project");
+      return response.json();
+    },
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      deleteProjectMutation.mutate(id);
+    }
+  };
 
   // Derive unique categories & tags from full set
   const uniqueCategories = useMemo(
@@ -342,223 +393,105 @@ export default function ProjectsPage() {
 
   const isFiltered = Boolean(search || category || tag);
 
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+        <div className="container mx-auto py-24 px-4 flex flex-col items-center justify-center">
+          <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mb-6">
+            <FolderGit2 className="h-10 w-10 text-destructive" />
+          </div>
+          <h2 className="text-3xl font-black text-foreground mb-2">Something went wrong</h2>
+          <p className="text-muted-foreground mb-8 text-center max-w-md">
+            {(error as Error)?.message || "Failed to load projects. Please check your connection and try again."}
+          </p>
+          <Button onClick={() => refetch()} variant="outline" className="rounded-xl px-8">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-7xl p-6 space-y-8">
-      {/* Save button - Fixed at top when changes detected */}
-      {hasChanges && !isFiltered && (
-        <div className="fixed top-20 right-6 z-50 animate-in slide-in-from-top-2">
-          <Card className="shadow-lg border-primary">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="flex-1">
-                <p className="font-medium text-sm">Unsaved Changes</p>
-                <p className="text-xs text-muted-foreground">
-                  Save to update project order
-                </p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 dark:from-background dark:via-background dark:to-muted/10 p-4 lg:p-12">
+      <div className="max-w-7xl mx-auto space-y-12">
+        {/* Save Order Notification */}
+        {hasChanges && !isFiltered && (
+          <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4">
+            <Card className="shadow-2xl border-blue-500 bg-background/95 backdrop-blur-md px-6 py-4 flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
+                  <Save className="h-5 w-5 text-blue-600" />
+                </div>
+                <div>
+                  <p className="font-bold text-sm">Order Changed</p>
+                  <p className="text-xs text-muted-foreground">Save to update portfolio appearance</p>
+                </div>
               </div>
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReset}
-                  disabled={savePositionsMutation.isPending}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleSavePositions}
-                  disabled={savePositionsMutation.isPending}
-                >
-                  {savePositionsMutation.isPending ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>
-                      <Save className="mr-2 h-4 w-4" />
-                      Save Order
-                    </>
-                  )}
+                <Button variant="ghost" size="sm" onClick={handleReset}>Discard</Button>
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleSavePositions} disabled={savePositionsMutation.isPending}>
+                  {savePositionsMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save Order"}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
+            </Card>
+          </div>
+        )}
 
-      <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-            <FolderGit2 className="h-7 w-7 text-primary" />
-            Projects
-          </h1>
-          <p className="text-muted-foreground">
-            Explore and manage your portfolio projects
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            onClick={handleReset}
-            disabled={isFetching}
-          >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`}
-            />
-            Reset
-          </Button>
-          <Button onClick={() => (window.location.href = "/project/create")}>
-            New Project
-          </Button>
-        </div>
-      </header>
-
-      <section className="grid gap-4 md:grid-cols-4">
-        <div className="col-span-1 space-y-6">
-          <div className="rounded-lg border p-4 space-y-4">
-            <div className="flex items-center gap-2 font-medium">
-              <Filter className="h-4 w-4" />
-              Filters
-            </div>
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                placeholder="Search..."
-                className="pl-8"
-              />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center shadow-2xl rotate-3">
+              <FolderGit2 className="h-8 w-8 text-white" />
             </div>
             <div>
-              <label className="text-sm font-medium flex items-center gap-1 mb-2">
-                <Layers className="h-4 w-4" />
-                Category
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <Badge
-                  variant={category ? "outline" : "default"}
-                  className="cursor-pointer"
-                  onClick={() => setCategory("")}
-                >
-                  All
-                </Badge>
-                {uniqueCategories.map((c) => (
-                  <Badge
-                    key={c}
-                    variant={category === c ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setCategory(c === category ? "" : c)}
-                  >
-                    {c}
-                  </Badge>
-                ))}
-              </div>
+              <h1 className="text-5xl font-black tracking-tighter">Projects</h1>
+              <p className="text-muted-foreground text-lg">Manage your showcase</p>
             </div>
-            <div>
-              <label className="text-sm font-medium flex items-center gap-1 mb-2">
-                <Tag className="h-4 w-4" />
-                Tags
-              </label>
-              <div className="flex flex-wrap gap-2 max-h-40 overflow-auto pr-1">
-                <Badge
-                  variant={tag ? "outline" : "default"}
-                  className="cursor-pointer"
-                  onClick={() => setTag("")}
-                >
-                  All
-                </Badge>
-                {uniqueTags.map((t) => (
-                  <Badge
-                    key={t}
-                    variant={tag === t ? "default" : "outline"}
-                    className="cursor-pointer"
-                    onClick={() => setTag(t === tag ? "" : t)}
-                  >
-                    {t}
-                  </Badge>
-                ))}
-              </div>
-            </div>
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => refetch()} className="h-12 border-border/50"><RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? 'animate-spin' : ''}`} /> Refresh</Button>
+            <Button onClick={() => (window.location.href = "/project/create")} className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-xl shadow-blue-500/20">+ Add Project</Button>
           </div>
         </div>
 
-        <div className="md:col-span-3">
-          {isError && (
-            <Card className="mb-6 border-destructive">
-              <CardHeader>
-                <CardTitle className="text-destructive">
-                  Failed to load
-                </CardTitle>
-                <CardDescription>
-                  {(error as Error)?.message || "Try again later."}
-                </CardDescription>
-              </CardHeader>
-              <CardFooter>
-                <Button onClick={() => refetch()} variant="destructive">
-                  Retry
-                </Button>
-              </CardFooter>
-            </Card>
-          )}
-
-          {!isLoading && projects.length === 0 && !isError ? (
-            <Card className="p-10 text-center">
-              <CardContent className="space-y-3">
-                <FolderGit2 className="mx-auto h-10 w-10 text-muted-foreground" />
-                <h2 className="text-lg font-semibold">No projects found</h2>
-                <p className="text-sm text-muted-foreground">
-                  Create your first project to showcase your work.
-                </p>
-                <Button
-                  onClick={() => (window.location.href = "/project/create")}
-                >
-                  Add Project
-                </Button>
-              </CardContent>
-            </Card>
-          ) : isLoading ? (
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Card key={i} className="overflow-hidden">
-                  <Skeleton className="h-40 w-full" />
-                  <CardHeader className="space-y-2">
-                    <Skeleton className="h-5 w-2/3" />
-                    <Skeleton className="h-3 w-3/4" />
-                    <Skeleton className="h-3 w-1/2" />
-                  </CardHeader>
-                  <CardFooter className="px-6 pb-6 pt-0">
-                    <Skeleton className="h-6 w-24" />
-                  </CardFooter>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleDragEnd}
-            >
-              <SortableContext
-                items={projects.map((p) => p.id)}
-                strategy={verticalListSortingStrategy}
-                disabled={isFiltered}
-              >
-                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                  {projects.map((p) => (
-                    <SortableProjectCard key={p.id} project={p} />
-                  ))}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-10">
+          <aside className="space-y-8">
+            <Card className="p-6 rounded-3xl border-border/40 bg-card/50 backdrop-blur-xl shadow-sm space-y-8">
+              <div className="space-y-4">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Quick Search</label>
+                <div className="relative"><Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /><Input placeholder="Filter by title..." className="pl-10 h-12 rounded-2xl bg-background/50 border-border/50" value={searchInput} onChange={(e) => setSearchInput(e.target.value)} /></div>
+              </div>
+              <div className="space-y-4">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Categories</label>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant={!category ? 'default' : 'outline'} className="cursor-pointer rounded-full px-4 py-1.5 transition-all" onClick={() => setCategory("")}>All</Badge>
+                  {uniqueCategories.map(c => <Badge key={c} variant={category === c ? 'default' : 'outline'} className="cursor-pointer rounded-full px-4 py-1.5 transition-all" onClick={() => setCategory(c)}>{c}</Badge>)}
                 </div>
-              </SortableContext>
-              {isFiltered && projects.length > 0 && (
-                <p className="text-sm text-muted-foreground text-center mt-4">
-                  💡 Tip: Clear filters to enable drag-and-drop reordering
-                </p>
-              )}
-            </DndContext>
-          )}
+              </div>
+              <div className="space-y-4">
+                <label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Tech Stack</label>
+                <div className="flex flex-wrap gap-2">{uniqueTags.map(t => <Badge key={t} variant={tag === t ? 'default' : 'outline'} className="cursor-pointer rounded-lg px-2 py-1 text-xs" onClick={() => setTag(t === tag ? "" : t)}>{t}</Badge>)}</div>
+              </div>
+              {(searchInput || category || tag) && <Button variant="ghost" size="sm" className="w-full text-blue-600 hover:bg-blue-50 rounded-xl" onClick={handleReset}>Clear All Filters</Button>}
+            </Card>
+          </aside>
+
+          <main className="lg:col-span-3">
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">{[1,2,3,4].map(i => <Skeleton key={i} className="h-80 rounded-3xl shadow-sm" />)}</div>
+            ) : projects.length === 0 ? (
+              <div className="text-center py-32 bg-card/30 rounded-[40px] border-2 border-dashed border-border/40 backdrop-blur-sm"><FolderGit2 className="h-16 w-16 mx-auto text-muted-foreground/30 mb-4" /><h3 className="text-2xl font-bold">No projects found</h3></div>
+            ) : (
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={projects.map(p => p.id)} strategy={verticalListSortingStrategy} disabled={isFiltered}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">{projects.map(p => <SortableProjectCard key={p.id} project={p} onDelete={handleDelete} />)}</div>
+                </SortableContext>
+              </DndContext>
+            )}
+          </main>
         </div>
-      </section>
+      </div>
     </div>
   );
 }

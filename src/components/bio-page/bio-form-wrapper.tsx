@@ -12,6 +12,7 @@ import { useBio, useCreateBio, useUpdateBio } from "@/hooks/use-bio";
 import { BioForm } from "../forms/bio-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { BioDisplay } from "./bio-display";
+import { useSession } from "next-auth/react";
 
 interface BioFormWrapperProps {
   onSuccess?: (bio: Bio) => void;
@@ -19,7 +20,9 @@ interface BioFormWrapperProps {
 }
 
 export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
-  const { data, isLoading, error } = useBio();
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+  const { data, isLoading, error } = useBio(userId!);
   const createBio = useCreateBio();
   const updateBio = useUpdateBio();
   const [isEditing, setIsEditing] = useState(false);

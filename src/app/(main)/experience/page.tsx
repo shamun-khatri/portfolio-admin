@@ -53,7 +53,13 @@ type Experience = {
 };
 
 // Sortable Experience Card Component
-function SortableExperienceCard({ experience }: { experience: Experience }) {
+function SortableExperienceCard({
+  experience,
+  onDelete,
+}: {
+  experience: Experience;
+  onDelete: (id: string) => void;
+}) {
   const {
     attributes,
     listeners,
@@ -74,8 +80,11 @@ function SortableExperienceCard({ experience }: { experience: Experience }) {
     <Card
       ref={setNodeRef}
       style={style}
-      className="shadow-lg hover:shadow-xl transition-shadow duration-300 relative group"
+      className="group relative overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:scale-[1.01] border bg-card hover:bg-accent/5 p-0"
     >
+      {/* Gradient border effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
       {/* Drag Handle */}
       <div
         {...attributes}
@@ -85,37 +94,40 @@ function SortableExperienceCard({ experience }: { experience: Experience }) {
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
 
-      <CardHeader className="pb-4 pl-12">
+      <CardHeader className="pb-4 pl-14 relative z-10">
         <div className="flex items-start justify-between">
           <div className="flex items-start space-x-4">
-            <Avatar className="w-16 h-16 border-2 border-gray-200">
-              <AvatarImage
-                src={experience.img || "/placeholder.svg"}
-                alt={`${experience.company} logo`}
-              />
-              <AvatarFallback className="text-lg font-semibold">
-                {experience.company.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full blur opacity-25 group-hover:opacity-50 transition duration-300" />
+              <Avatar className="w-16 h-16 border-2 border-background relative">
+                <AvatarImage
+                  src={experience.img || "/placeholder.svg"}
+                  alt={`${experience.company} logo`}
+                />
+                <AvatarFallback className="text-lg font-semibold bg-muted">
+                  {experience.company.charAt(0)}
+                </AvatarFallback>
+              </Avatar>
+            </div>
             <div className="flex-1">
-              <h3 className="text-xl font-bold text-gray-900 mb-1">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text mb-1">
                 {experience.role}
               </h3>
-              <div className="flex items-center text-gray-600 mb-1">
-                <Building2 className="w-4 h-4 mr-2" />
+              <div className="flex items-center text-muted-foreground mb-1">
+                <Building2 className="w-4 h-4 mr-2 text-blue-500" />
                 <span className="font-medium">{experience.company}</span>
               </div>
-              <div className="flex items-center text-gray-500">
-                <Calendar className="w-4 h-4 mr-2" />
+              <div className="flex items-center text-muted-foreground/80">
+                <Calendar className="w-4 h-4 mr-2 text-purple-500" />
                 <span className="text-sm">{experience.date}</span>
               </div>
             </div>
           </div>
-          <div className="flex space-x-2">
+          <div className="flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+              className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 shadow-sm border bg-background"
               onClick={() => (window.location.href = `/experience/${experience.id}`)}
             >
               <Edit className="w-4 h-4" />
@@ -123,7 +135,8 @@ function SortableExperienceCard({ experience }: { experience: Experience }) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600"
+              className="h-8 w-8 p-0 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 shadow-sm border bg-background"
+              onClick={() => onDelete(experience.id)}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -131,33 +144,28 @@ function SortableExperienceCard({ experience }: { experience: Experience }) {
         </div>
       </CardHeader>
 
-      <CardContent className="pt-0 pl-12">
-        <p className="text-gray-700 leading-relaxed mb-4">
+      <CardContent className="pt-0 pl-14 relative z-10">
+        <p className="text-muted-foreground text-sm leading-relaxed mb-4">
           {experience.desc}
         </p>
       </CardContent>
 
-      <CardFooter className="pt-0 pl-12">
+      <CardFooter className="pt-0 pl-14 pb-6 relative z-10">
         <div className="w-full">
           {experience.skills && experience.skills.length > 0 ? (
-            <div>
-              <h4 className="text-sm font-medium text-gray-600 mb-2">
-                Skills & Technologies
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {experience.skills.map((skill, skillIndex) => (
-                  <Badge
-                    key={skillIndex}
-                    variant="secondary"
-                    className="text-xs px-2 py-1 bg-blue-50 text-blue-700 hover:bg-blue-100"
-                  >
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {experience.skills.map((skill, skillIndex) => (
+                <Badge
+                  key={skillIndex}
+                  variant="secondary"
+                  className="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800/50 hover:bg-blue-100 transition-colors"
+                >
+                  {skill}
+                </Badge>
+              ))}
             </div>
           ) : (
-            <p className="text-sm text-gray-500 italic">No skills listed</p>
+            <p className="text-xs text-muted-foreground italic">No skills listed</p>
           )}
         </div>
       </CardFooter>
@@ -217,6 +225,26 @@ const Page = () => {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to delete experience");
+      return response.json();
+    },
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const handleDelete = (id: string) => {
+    if (window.confirm("Are you sure you want to delete this experience entry?")) {
+      deleteMutation.mutate(id);
+    }
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -256,92 +284,141 @@ const Page = () => {
   }
 
   if (isError) {
-    return <p className="text-center text-red-500 py-10">Failed to load experiences.</p>;
-  }
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-6 p-6">
-      {/* Save Alert */}
-      {hasChanges && (
-        <div className="fixed top-20 right-6 z-50 animate-in slide-in-from-top-2">
-          <Card className="shadow-lg border-primary">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="flex-1">
-                <p className="font-medium text-sm">Unsaved Changes</p>
-                <p className="text-xs text-muted-foreground">
-                  Save to update experience order
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleReset}
-                  disabled={saveOrderMutation.isPending}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={handleSaveOrder}
-                  disabled={saveOrderMutation.isPending}
-                >
-                  {saveOrderMutation.isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4 mr-2" />
-                  )}
-                  Save
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Experience</h1>
-          <p className="text-muted-foreground">Manage your professional work history</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => refetch()} disabled={isFetching}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isFetching ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
-          <Button onClick={() => (window.location.href = "/experience/create")}>
-            Add Experience
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 dark:from-background dark:via-background dark:to-muted/10">
+        <div className="container mx-auto py-8 px-4 flex flex-col items-center justify-center min-h-[400px]">
+          <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+            <Briefcase className="h-10 w-10 text-destructive" />
+          </div>
+          <h2 className="text-2xl font-bold text-destructive mb-2">Error</h2>
+          <p className="text-muted-foreground mb-6">Failed to load experience entries. Please try again.</p>
+          <Button onClick={() => refetch()} variant="outline">
+            Try Again
           </Button>
         </div>
       </div>
+    );
+  }
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <SortableContext
-          items={experienceOrder.map((e) => e.id)}
-          strategy={verticalListSortingStrategy}
-        >
-          <div className="space-y-6">
-            {experienceOrder.map((experience) => (
-              <SortableExperienceCard key={experience.id} experience={experience} />
-            ))}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20 dark:from-background dark:via-background dark:to-muted/10">
+      <div className="container mx-auto py-8 px-4 space-y-8">
+        {/* Save Alert */}
+        {hasChanges && (
+          <div className="fixed top-24 right-6 z-50 animate-in slide-in-from-top-2">
+            <Card className="shadow-2xl border-primary bg-background/95 backdrop-blur-md">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Save className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <p className="font-bold text-sm">Unsaved Changes</p>
+                  <p className="text-xs text-muted-foreground">
+                    Save to update experience order
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleReset}
+                    disabled={saveOrderMutation.isPending}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-primary hover:bg-primary/90 shadow-lg"
+                    onClick={handleSaveOrder}
+                    disabled={saveOrderMutation.isPending}
+                  >
+                    {saveOrderMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </SortableContext>
-      </DndContext>
+        )}
 
-      {experienceOrder.length === 0 && (
-        <div className="text-center py-20 border-2 border-dashed rounded-lg bg-muted/50">
-          <Briefcase className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No work experience</h3>
-          <p className="text-muted-foreground mb-6">Start by adding your first professional role.</p>
-          <Button onClick={() => (window.location.href = "/experience/create")}>
-            Add Experience
-          </Button>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg transform -rotate-3 hover:rotate-0 transition-transform duration-300">
+                <Briefcase className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-foreground via-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-foreground dark:via-blue-400 dark:to-purple-400">
+                  Experience
+                </h1>
+                <p className="text-lg text-muted-foreground mt-1">
+                  Manage your professional work history
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => refetch()} 
+              disabled={isFetching}
+              className="hover:bg-accent/50 group"
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-500 ${isFetching ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+            <Button 
+              onClick={() => (window.location.href = "/experience/create")}
+              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+            >
+              Add Experience
+            </Button>
+          </div>
         </div>
-      )}
+
+        <div className="max-w-4xl mx-auto">
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={experienceOrder.map((e) => e.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-6">
+                {experienceOrder.map((experience) => (
+                  <SortableExperienceCard
+                    key={experience.id}
+                    experience={experience}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+
+          {experienceOrder.length === 0 && (
+            <div className="text-center py-24 border-2 border-dashed rounded-3xl bg-muted/30 backdrop-blur-sm">
+              <Briefcase className="h-16 w-16 mx-auto text-muted-foreground/50 mb-6" />
+              <h3 className="text-2xl font-bold mb-2">Work history is empty</h3>
+              <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
+                No work experience found. Add your first professional role to showcase your career path.
+              </p>
+              <Button 
+                onClick={() => (window.location.href = "/experience/create")}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+              >
+                Add Your First Experience
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

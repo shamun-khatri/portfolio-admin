@@ -35,7 +35,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     },
   },
+  pages: {
+    signIn: "/login",
+  },
   callbacks: {
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const { pathname } = nextUrl;
+
+      // API routes should be accessible or handle their own auth
+      if (pathname.startsWith("/api")) return true;
+
+      // Redirect logged-in users away from the login page
+      if (pathname.startsWith("/login")) {
+        if (isLoggedIn) return Response.redirect(new URL("/dashboard", nextUrl));
+        return true;
+      }
+
+      // Root path is the public landing page and should be accessible to everyone.
+      if (pathname === "/") {
+        return true;
+      }
+
+      return isLoggedIn;
+    },
     async signIn({ user, account }) {
       console.log("signIn callback Use", user);
       console.log("signIn callback Account", account);

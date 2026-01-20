@@ -20,6 +20,7 @@ import {
   FileText,
   Image as ImageIcon,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import EducationForm from "@/components/forms/education-form";
 import { EducationFormValues } from "@/components/forms/form-schemas/education-schema";
@@ -42,7 +43,6 @@ const fetchEducation = async (
 ): Promise<Education> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/education/${userId}/${id}`,
-    { credentials: "include" }
   );
 
   if (!response.ok) {
@@ -82,6 +82,20 @@ const updateEducation = async (
   }
 
   return response.json();
+};
+
+const deleteEducation = async (id: string): Promise<void> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/education/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete education entry: ${response.statusText}`);
+  }
 };
 
 // Loading Component
@@ -124,9 +138,13 @@ function ErrorState({
 function EducationView({
   education,
   onEdit,
+  onDelete,
+  isDeleting,
 }: {
   education: Education;
   onEdit: () => void;
+  onDelete: () => void;
+  isDeleting: boolean;
 }) {
   return (
     <Card className="max-w-4xl mx-auto">
@@ -141,14 +159,26 @@ function EducationView({
               {education.degree}
             </Badge>
           </div>
-          <Button
-            onClick={onEdit}
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            Edit
-          </Button>
+          <div className="flex gap-2">
+            <Button onClick={onEdit} size="sm" className="flex items-center gap-2">
+              <Edit className="h-4 w-4" />
+              Edit
+            </Button>
+            <Button
+              onClick={onDelete}
+              size="sm"
+              variant="destructive"
+              disabled={isDeleting}
+              className="flex items-center gap-2"
+            >
+              {isDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              Delete
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -268,10 +298,34 @@ export default function EducationDetailPage() {
     },
   });
 
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteEducation(educationId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["education"] });
+      alert("Education entry deleted successfully!");
+      router.push("/education");
+    },
+    onError: (error: Error) => {
+      console.error("Delete failed:", error);
+      alert(error.message || "Failed to delete education entry");
+    },
+  });
+
   // Event Handlers
   const handleEdit = () => setMode("edit");
   const handleCancelEdit = () => setMode("view");
   const handleBack = () => router.push("/education");
+
+  const handleDelete = async () => {
+    if (
+      window.confirm(
+        "Are you sure you want to delete this education entry? This action cannot be undone."
+      )
+    ) {
+      await deleteMutation.mutateAsync();
+    }
+  };
 
   // Custom submit handler that wraps the mutation
   const handleSubmit = async (data: EducationFormValues): Promise<void> => {
@@ -355,7 +409,12 @@ export default function EducationDetailPage() {
 
       {/* Content */}
       {mode === "view" ? (
-        <EducationView education={education} onEdit={handleEdit} />
+          <EducationView
+            education={education}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+            isDeleting={deleteMutation.isPending}
+          />
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">

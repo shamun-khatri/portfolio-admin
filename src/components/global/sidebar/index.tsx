@@ -9,16 +9,19 @@ import {
   Projector,
   User,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { NavMain } from "./nav-main";
+import { NavUser } from "./nav-user";
 
 const data = {
   // user: {
@@ -111,13 +114,15 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { data: session } = useSession();
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href="/">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Command className="size-4" />
                 </div>
@@ -132,12 +137,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {/* <NavProjects projects={data.projects} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
-      {/* <SidebarFooter>
-        <NavUser user={data.user} />
-      </SidebarFooter> */}
+      {session?.user && (
+        <SidebarFooter>
+          <NavUser
+            user={{
+              name: session.user.name || "User",
+              email: session.user.email || "",
+              avatar: session.user.image || "/avatars/default.jpg",
+            }}
+          />
+        </SidebarFooter>
+      )}
     </Sidebar>
   );
 }

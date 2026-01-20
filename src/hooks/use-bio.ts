@@ -29,10 +29,10 @@ const toFormData = (data: BioFormData, isUpdate: boolean = false): FormData => {
   return formData;
 };
 
-const fetchBio = async (): Promise<Bio | null> => {
+const fetchBio = async (userId: string): Promise<Bio | null> => {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/bio/111316734788280692226`,
+      `${process.env.NEXT_PUBLIC_API_URL}/bio/${userId}`,
       {
         method: "GET",
       }
@@ -73,10 +73,11 @@ const updateBio = async (data: BioFormData): Promise<Bio | null> => {
   return response.json();
 };
 
-export const useBio = () => {
+export const useBio = (userId: string) => {
   return useQuery({
-    queryKey: ["bio"],
-    queryFn: fetchBio,
+    queryKey: ["bio", userId],
+    queryFn: () => fetchBio(userId),
+    enabled: !!userId,
   });
 };
 

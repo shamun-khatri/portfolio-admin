@@ -20,6 +20,7 @@ import {
   FileText,
   Image as ImageIcon,
   Loader2,
+  Trash2,
 } from "lucide-react";
 import ExperienceForm from "@/components/forms/experience-form";
 import { ExperienceFormValues } from "@/components/forms/form-schemas/experience-schema";
@@ -85,6 +86,20 @@ const updateExperience = async (
   return response.json();
 };
 
+const deleteExperience = async (id: string): Promise<void> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/experiences/${id}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete experience entry: ${response.statusText}`);
+  }
+};
+
 // Loading Component
 function LoadingState() {
   return (
@@ -125,9 +140,13 @@ function ErrorState({
 function ExperienceView({
   experience,
   onEdit,
+  onDelete,
+  isMainDeleting,
 }: {
   experience: Experience;
   onEdit: () => void;
+  onDelete: () => void;
+  isMainDeleting?: boolean;
 }) {
   return (
     <Card className="max-w-4xl mx-auto">
@@ -142,14 +161,31 @@ function ExperienceView({
               {experience.company}
             </Badge>
           </div>
-          <Button
-            onClick={onEdit}
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Edit className="h-4 w-4" />
-            Edit
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              onClick={onEdit}
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+            >
+              <Edit className="h-4 w-4" />
+              Edit
+            </Button>
+            <Button
+              onClick={onDelete}
+              variant="destructive"
+              size="sm"
+              disabled={isMainDeleting}
+              className="flex items-center gap-2"
+            >
+              {isMainDeleting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+              Delete
+            </Button>
+          </div>
         </div>
       </CardHeader>
 
@@ -281,10 +317,30 @@ export default function ExperienceDetailPage() {
     },
   });
 
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteExperience(experienceId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["experiences"] });
+      alert("Experience entry deleted successfully!");
+      router.push("/experience");
+    },
+    onError: (error: Error) => {
+      console.error("Delete failed:", error);
+      alert(error.message || "Failed to delete experience entry");
+    },
+  });
+
   // Event Handlers
   const handleEdit = () => setMode("edit");
   const handleCancelEdit = () => setMode("view");
   const handleBack = () => router.push("/experience");
+
+  const handleDelete = async () => {
+    if (window.confirm("Are you sure you want to delete this experience entry?")) {
+      await deleteMutation.mutateAsync();
+    }
+  };
 
   const handleSubmit = async (data: ExperienceFormValues): Promise<void> => {
     await updateMutation.mutateAsync(data);
@@ -368,7 +424,12 @@ export default function ExperienceDetailPage() {
 
       {/* Content */}
       {mode === "view" ? (
-        <ExperienceView experience={experience} onEdit={handleEdit} />
+        <ExperienceView
+          experience={experience}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          isMainDeleting={deleteMutation.isPending}
+        />
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">

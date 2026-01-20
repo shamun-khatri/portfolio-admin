@@ -270,186 +270,188 @@ export default function ExperienceForm({
 
   const formContent = (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="company"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Building className="h-4 w-4" />
-                  Company
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., Google, Microsoft"
-                    {...field}
-                    disabled={isReadOnly || isFormLoading}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-6">
+            <FormField
+              control={form.control}
+              name="company"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-blue-500/80">
+                    Organization
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative group">
+                      <Building className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50 group-focus-within:text-blue-500 transition-colors" />
+                      <Input
+                        placeholder="e.g. Google, Inc."
+                        {...field}
+                        disabled={isReadOnly || isFormLoading}
+                        className="bg-background/40 border-border/40 focus:border-blue-500/50 focus:ring-blue-500/10 rounded-2xl h-14 pl-12 font-bold transition-all"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          <FormField
-            control={form.control}
-            name="role"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Role/Position
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="e.g., Senior Software Engineer"
-                    {...field}
-                    disabled={isReadOnly || isFormLoading}
-                    className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+            <FormField
+              control={form.control}
+              name="role"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-purple-500/80">
+                    Professional Role
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative group">
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/50 group-focus-within:text-purple-500 transition-colors" />
+                      <Input
+                        placeholder="e.g. Senior Software Engineer"
+                        {...field}
+                        disabled={isReadOnly || isFormLoading}
+                        className="bg-background/40 border-border/40 focus:border-purple-500/50 focus:ring-purple-500/10 rounded-2xl h-14 pl-12 font-bold transition-all"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={form.control}
-          name="date"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />
-                Duration/Period
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="e.g., Jan 2022 - Present or 2020-2023"
-                  {...field}
-                  disabled={isReadOnly || isFormLoading}
-                  className="transition-all duration-200 focus:ring-2 focus:ring-primary/20"
-                />
-              </FormControl>
-              <FormDescription>
-                Enter the employment period or duration
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={form.control}
+              name="date"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
+                    Engagement Period
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative group">
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50" />
+                      <Input
+                        placeholder="e.g. Jan 2022 - Present"
+                        {...field}
+                        disabled={isReadOnly || isFormLoading}
+                        className="bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl h-12 pl-10 font-medium text-sm transition-all"
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-        <FormField
-          control={form.control}
-          name="img"
-          render={({ field: { onChange } }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
-                <ImageIcon className="h-4 w-4" />
-                Company Logo/Image
-              </FormLabel>
-
-              {/* Existing Image Preview */}
-              {existingImageUrl && (
-                <div className="space-y-3">
-                  <div className="text-sm text-muted-foreground">
-                    Current Image:
-                  </div>
-                  <div className="relative rounded-lg overflow-hidden bg-muted border">
-                    <Image
-                      src={existingImageUrl}
-                      alt="Current company logo"
-                      width={400}
-                      height={150}
-                      className="w-full h-32 object-cover"
-                    />
-                    <div className="absolute top-2 right-2">
-                      <div className="bg-background/80 backdrop-blur-sm px-2 py-1 rounded text-xs text-muted-foreground">
-                        Current
+          <div className="space-y-6">
+            <FormField
+              control={form.control}
+              name="img"
+              render={({ field: { onChange } }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-indigo-500/80 flex items-center gap-2">
+                    <ImageIcon className="h-4 w-4" />
+                    Corporate Branding
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative group">
+                      <div className="absolute -inset-1.5 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-3xl blur opacity-10 group-hover:opacity-20 transition" />
+                      <div className="relative">
+                        <ImageUpload
+                          onFileChange={(file) => {
+                            if (file) {
+                              const fileArray = [file];
+                              onChange(fileArray as unknown as FileList);
+                            } else {
+                              onChange(undefined);
+                            }
+                          }}
+                        />
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
 
-              <FormControl>
-                <div
-                  className={
-                    isReadOnly || isFormLoading
-                      ? "opacity-50 pointer-events-none"
-                      : ""
-                  }
-                >
-                  <div className="space-y-2">
-                    {existingImageUrl && (
-                      <div className="text-sm text-muted-foreground">
-                        {isEditMode
-                          ? "Upload a new image to replace the current one:"
-                          : "Upload an image:"}
-                      </div>
-                    )}
-                    <ImageUpload
-                      onFileChange={(file) => {
-                        onChange(file ? [file] : undefined);
-                      }}
-                    />
-                  </div>
+            {isEditMode && existingImageUrl && (
+              <div className="p-4 rounded-3xl bg-muted/20 border border-border/10 space-y-3">
+                <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Active Asset</span>
+                <div className="relative w-20 h-20 rounded-2xl overflow-hidden ring-4 ring-background shadow-xl">
+                  <Image
+                    src={existingImageUrl}
+                    alt="Current"
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
                 </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+              </div>
+            )}
+          </div>
+        </div>
+
+        <Separator className="bg-border/10" />
 
         <FormField
           control={form.control}
           name="desc"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
+            <FormItem className="space-y-4">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-blue-500/80">
                 <FileText className="h-4 w-4" />
-                Description
-              </FormLabel>
+                Impact & Contributions
+              </div>
               <FormControl>
                 <Textarea
-                  placeholder="Describe your role, responsibilities, achievements, and key contributions..."
-                  className="min-h-[120px] transition-all duration-200 focus:ring-2 focus:ring-primary/20"
+                  placeholder="Describe your primary responsibilities and high-impact achievements..."
+                  className="min-h-[200px] bg-background/40 border-border/40 focus:border-blue-500/50 focus:ring-blue-500/10 rounded-3xl p-6 font-medium leading-relaxed resize-none text-base"
                   {...field}
                   disabled={isReadOnly || isFormLoading}
                 />
               </FormControl>
-              <FormDescription>
-                Share details about your responsibilities, achievements, and
-                impact
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
 
         {!isReadOnly && (
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-4">
             {showResetButton && (
               <Button
                 type="button"
-                variant="outline"
+                variant="ghost"
                 onClick={handleReset}
-                className="flex-1"
+                className="w-full sm:w-auto rounded-xl h-12 px-6 font-bold hover:bg-muted/30 transition-all"
                 disabled={isFormLoading}
               >
-                Reset Form
+                Reset Details
               </Button>
             )}
             <Button
               type="submit"
-              className={showResetButton ? "flex-1" : "w-full"}
               disabled={isFormLoading}
+              className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-purple-700 hover:from-blue-700 hover:to-purple-800 text-white shadow-2xl hover:shadow-blue-500/30 transition-all duration-500 rounded-2xl h-14 px-12 font-black uppercase tracking-widest text-xs"
             >
-              {getSubmitButtonIcon()}
-              {getSubmitButtonText()}
+              {isFormLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Synchronizing...
+                </>
+              ) : (
+                <>
+                  {mode === "edit" ? (
+                    <Save className="mr-2 h-4 w-4" />
+                  ) : (
+                    <Plus className="mr-2 h-4 w-4" />
+                  )}
+                  {getSubmitButtonText()}
+                </>
+              )}
             </Button>
           </div>
         )}
@@ -462,15 +464,30 @@ export default function ExperienceForm({
   }
 
   return (
-    <Card className={`w-full max-w-2xl mx-auto ${className || ""}`}>
-      <CardHeader className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Briefcase className="h-5 w-5 text-primary" />
-          <CardTitle className="text-2xl">{getTitle()}</CardTitle>
+    <Card className="w-full relative overflow-hidden bg-card/60 backdrop-blur-xl border-border/40 shadow-2xl rounded-[32px]">
+      {/* Decorative Gradient elements */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 blur-[100px] -z-10 rounded-full" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-500/5 blur-[100px] -z-10 rounded-full" />
+
+      <CardHeader className="p-8 pb-4">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center shadow-2xl transform -rotate-3 transition-transform hover:rotate-0 duration-500">
+            <Briefcase className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <CardTitle className="text-2xl font-black tracking-tight uppercase">
+              {getTitle()}
+            </CardTitle>
+            <CardDescription className="text-base font-medium text-muted-foreground/80">
+              {getDescription()}
+            </CardDescription>
+          </div>
         </div>
-        <CardDescription>{getDescription()}</CardDescription>
       </CardHeader>
-      <CardContent>{formContent}</CardContent>
+
+      <CardContent className="p-8 pt-4">
+        {formContent}
+      </CardContent>
     </Card>
   );
 }
