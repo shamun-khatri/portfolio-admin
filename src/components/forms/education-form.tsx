@@ -60,11 +60,6 @@ export interface EducationFormProps {
   educationId?: string;
 
   /**
-   * User ID for API calls
-   */
-  userId?: string;
-
-  /**
    * Callback fired when form is successfully submitted
    */
   onSuccess?: (data: EducationFormValues) => void;
@@ -128,7 +123,6 @@ export default function EducationForm({
   mode = "create",
   initialValues,
   educationId,
-  userId,
   onSuccess,
   onError,
   onSubmit: customOnSubmit,

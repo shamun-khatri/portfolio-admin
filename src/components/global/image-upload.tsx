@@ -1,6 +1,7 @@
 import { Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useImageUpload } from "@/hooks/use-image-upload";
+import Image from "next/image";
 
 interface ImageUploadProps {
   onFileChange: (file: File | null) => void;
@@ -59,11 +60,12 @@ const ImageUpload = ({ onFileChange }: ImageUploadProps) => {
       </div>
 
       {preview && (
-        <div className="relative">
-          <img
+        <div className="relative h-48 w-full">
+          <Image
             src={preview || "/placeholder.svg"}
             alt="Preview"
-            className="w-full h-48 object-cover rounded-lg"
+            fill
+            className="object-cover rounded-lg"
           />
           <Button
             type="button"

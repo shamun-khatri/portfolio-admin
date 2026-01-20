@@ -79,7 +79,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return true;
     },
-    async jwt({ user, token, account }) {
+    async jwt({ token, account }) {
       if (account) {
         console.log("JWT callback Account", account);
       }
@@ -89,9 +89,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      if (token) {
+      if (token && typeof token.id === "string") {
         if (session && session.user) {
-          session.user.id = token.id; // Example: Add user ID to session
+          session.user.id = token.id;
         }
       }
       return session;

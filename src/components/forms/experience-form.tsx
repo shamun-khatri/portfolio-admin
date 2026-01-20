@@ -60,11 +60,6 @@ export interface ExperienceFormProps {
   experienceId?: string;
 
   /**
-   * User ID for API calls
-   */
-  userId?: string;
-
-  /**
    * URL of existing image (for edit/view modes)
    */
   existingImageUrl?: string;
@@ -127,7 +122,6 @@ export default function ExperienceForm({
   mode = "create",
   initialValues,
   experienceId,
-  userId,
   existingImageUrl,
   onSuccess,
   onError,

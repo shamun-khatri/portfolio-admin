@@ -5,31 +5,20 @@ import {
   BookOpen,
   BrainCircuit,
   Command,
-  Frame,
   GraduationCap,
-  LifeBuoy,
-  Map,
-  PieChart,
   Projector,
-  Send,
-  Settings2,
-  SquareTerminal,
   User,
 } from "lucide-react";
 
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { NavSecondary } from "./nav-secondary";
-import { NavUser } from "./nav-user";
 import { NavMain } from "./nav-main";
-import { NavProjects } from "./nav-projects";
 
 const data = {
   // user: {

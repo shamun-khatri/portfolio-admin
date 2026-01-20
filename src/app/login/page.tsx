@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 // Google Icon SVG
 const GoogleIcon = () => (
@@ -25,12 +26,7 @@ const GoogleIcon = () => (
   </svg>
 );
 
-/**
- * A simple login page component with a "Sign in with Google" button.
- * It uses the `signIn` function from `next-auth/react`.
- * It also displays an error message if a sign-in attempt fails.
- */
-export default function SignInPage() {
+function LoginContent() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
 
@@ -75,5 +71,18 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * A simple login page component with a "Sign in with Google" button.
+ * It uses the `signIn` function from `next-auth/react`.
+ * It also displays an error message if a sign-in attempt fails.
+ */
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

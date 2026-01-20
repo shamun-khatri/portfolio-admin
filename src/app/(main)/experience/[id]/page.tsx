@@ -41,7 +41,7 @@ const fetchExperience = async (
   id: string
 ): Promise<Experience> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/experience/${userId}/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/experiences/${userId}/${id}`,
     { credentials: "include" }
   );
 
@@ -68,7 +68,7 @@ const updateExperience = async (
   }
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/experience/${id}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/experiences/${id}`,
     {
       method: "PUT",
       credentials: "include",

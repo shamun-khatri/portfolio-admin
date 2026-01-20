@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { useInfiniteQuery, useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import {
   DndContext,
@@ -340,7 +340,7 @@ export default function ProjectsPage() {
     refetch();
   };
 
-  const isFiltered = search || category || tag;
+  const isFiltered = Boolean(search || category || tag);
 
   return (
     <div className="mx-auto max-w-7xl p-6 space-y-8">
