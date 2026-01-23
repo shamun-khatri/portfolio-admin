@@ -43,7 +43,6 @@ const fetchExperience = async (
 ): Promise<Experience> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/experiences/${userId}/${id}`,
-    { credentials: "include" }
   );
 
   if (!response.ok) {
@@ -63,6 +62,12 @@ const updateExperience = async (
   formData.append("role", data.role);
   formData.append("date", data.date);
   formData.append("desc", data.desc);
+
+  if (data.skills && data.skills.length > 0) {
+    data.skills.forEach((skill) => {
+      formData.append("skills[]", skill);
+    });
+  }
 
   if (data.img && data.img.length > 0) {
     formData.append("img", data.img[0]);
@@ -393,6 +398,7 @@ export default function ExperienceDetailPage() {
     role: experience.role,
     date: experience.date,
     desc: experience.desc,
+    skills: experience.skills || [],
     // Note: img is handled separately as it's a file upload
   };
 

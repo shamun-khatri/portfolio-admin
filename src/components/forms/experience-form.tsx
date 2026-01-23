@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Loader2,
   Briefcase,
@@ -34,6 +35,8 @@ import {
   Save,
   Plus,
   ImageIcon,
+  Tag,
+  X,
 } from "lucide-react";
 import {
   ExperienceFormValues,
@@ -117,6 +120,7 @@ const defaultFormValues: ExperienceFormValues = {
   role: "",
   date: "",
   desc: "",
+  skills: [],
 };
 
 export default function ExperienceForm({
@@ -135,6 +139,7 @@ export default function ExperienceForm({
   isLoading: externalLoading = false,
 }: ExperienceFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [tagInput, setTagInput] = useState("");
 
   const isReadOnly = mode === "view";
   const isEditMode = mode === "edit";
@@ -185,6 +190,13 @@ export default function ExperienceForm({
     formData.append("role", data.role);
     formData.append("date", data.date);
     formData.append("desc", data.desc);
+
+    // Append skills if provided
+    if (data.skills && data.skills.length > 0) {
+      data.skills.forEach((skill) => {
+        formData.append("skills[]", skill);
+      });
+    }
 
     // Append image if provided
     if (data.img && data.img.length > 0) {
@@ -247,6 +259,37 @@ export default function ExperienceForm({
         ? { ...defaultFormValues, ...initialValues }
         : defaultFormValues
     );
+  };
+
+  // Skill/Tag management
+  const addSkill = () => {
+    const trimmedSkill = tagInput.trim();
+    const currentSkills = form.getValues("skills") || [];
+
+    if (
+      !trimmedSkill ||
+      currentSkills.includes(trimmedSkill)
+    ) {
+      return;
+    }
+
+    form.setValue("skills", [...currentSkills, trimmedSkill]);
+    setTagInput("");
+  };
+
+  const removeSkill = (skillToRemove: string) => {
+    const currentSkills = form.getValues("skills") || [];
+    form.setValue(
+      "skills",
+      currentSkills.filter((skill) => skill !== skillToRemove)
+    );
+  };
+
+  const handleSkillInputKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addSkill();
+    }
   };
 
   const getSubmitButtonText = () => {
@@ -414,6 +457,67 @@ export default function ExperienceForm({
                   {...field}
                   disabled={isReadOnly || isFormLoading}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="skills"
+          render={({ field }) => (
+            <FormItem className="space-y-4">
+              <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-purple-500/80">
+                <Tag className="h-4 w-4" />
+                Key Technologies & Skills
+              </div>
+              <FormControl>
+                <div className="space-y-4">
+                  {!isReadOnly && (
+                    <div className="flex gap-3">
+                      <Input
+                        placeholder="e.g. React, Node.js, AWS, Kubernetes..."
+                        value={tagInput}
+                        onChange={(e) => setTagInput(e.target.value)}
+                        onKeyPress={handleSkillInputKeyPress}
+                        disabled={isFormLoading}
+                        className="bg-background/40 border-border/40 focus:border-purple-500/50 focus:ring-purple-500/10 rounded-2xl h-12 px-6 font-bold flex-1"
+                      />
+                      <Button
+                        type="button"
+                        onClick={addSkill}
+                        disabled={!tagInput.trim() || isFormLoading}
+                        className="bg-purple-500 hover:bg-purple-600 text-white rounded-2xl h-12 px-6 shadow-lg shadow-purple-500/20"
+                      >
+                        <Plus className="h-5 w-5" />
+                      </Button>
+                    </div>
+                  )}
+
+                  {field.value && field.value.length > 0 && (
+                    <div className="flex flex-wrap gap-2 p-6 bg-muted/20 border border-border/5 rounded-[24px]">
+                      {field.value.map((skill, index) => (
+                        <Badge
+                          key={`${skill}-${index}`}
+                          className="group bg-background/60 hover:bg-background border-border/40 hover:border-purple-500/50 text-foreground px-4 py-2 rounded-xl flex items-center gap-2 transition-all cursor-default"
+                        >
+                          <span className="font-bold text-xs uppercase tracking-wider">{skill}</span>
+                          {!isReadOnly && (
+                            <button
+                              type="button"
+                              onClick={() => removeSkill(skill)}
+                              disabled={isFormLoading}
+                              className="opacity-0 group-hover:opacity-100 transition-opacity hover:text-red-500 disabled:cursor-not-allowed"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          )}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>

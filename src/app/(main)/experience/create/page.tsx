@@ -19,6 +19,13 @@ export default function CreateExperiencePage() {
       formData.append("date", data.date);
       formData.append("desc", data.desc);
 
+      // Append skills if provided
+      if (data.skills && data.skills.length > 0) {
+        data.skills.forEach((skill) => {
+          formData.append("skills[]", skill);
+        });
+      }
+
       // Append image if provided
       if (data.img && data.img.length > 0) {
         formData.append("img", data.img[0]);

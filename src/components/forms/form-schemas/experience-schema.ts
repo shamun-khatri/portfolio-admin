@@ -34,6 +34,9 @@ export const experienceSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description must be less than 1000 characters"),
+  skills: z
+    .array(z.string())
+    .default([]),
 });
 
 export type ExperienceFormValues = z.infer<typeof experienceSchema>;
