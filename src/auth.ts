@@ -14,6 +14,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "none",
         path: "/",
         secure: true,
+        domain: process.env.NODE_ENV === "production" ? ".shamunkhatri.me" : undefined,
       },
     },
     callbackUrl: {
@@ -23,6 +24,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax",
         path: "/",
         secure: false,
+        domain: process.env.NODE_ENV === "production" ? ".shamunkhatri.me" : undefined,
       },
     },
     csrfToken: {
@@ -32,6 +34,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax",
         path: "/",
         secure: false,
+        domain: process.env.NODE_ENV === "production" ? ".shamunkhatri.me" : undefined,
       },
     },
   },
