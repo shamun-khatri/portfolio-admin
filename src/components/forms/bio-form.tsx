@@ -113,7 +113,7 @@ export function BioForm({
                         Designations
                       </FormLabel>
                       <FormDescription className="text-[11px] font-medium opacity-70 mt-0.5">
-                        Add titles like "Full Stack Engineer" or "UI Designer"
+                        Add titles like &ldquo;Full Stack Engineer&rdquo; or &ldquo;UI Designer&rdquo;
                       </FormDescription>
                     </div>
                     <Button

@@ -39,6 +39,6 @@ export const experienceSchema = z.object({
     .default([]),
 });
 
-export type ExperienceFormValues = z.infer<typeof experienceSchema>;
+export type ExperienceFormValues = z.input<typeof experienceSchema>;
 
 export default experienceSchema;

@@ -97,10 +97,6 @@ export default function SkillsPage() {
   }
 
   const categories = groupedSkills ? Object.keys(groupedSkills) : [];
-  const totalSkills = groupedSkills
-    ? Object.values(groupedSkills).flat().length
-    : 0;
-
   return (
     <div className="min-h-screen bg-transparent">
       <div className="max-w-7xl mx-auto py-8">

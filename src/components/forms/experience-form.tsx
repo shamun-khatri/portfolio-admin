@@ -15,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -297,17 +296,6 @@ export default function ExperienceForm({
       return isEditMode ? "Updating..." : "Creating...";
     }
     return isEditMode ? "Update Experience" : "Add Experience";
-  };
-
-  const getSubmitButtonIcon = () => {
-    if (isSubmitting) {
-      return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
-    }
-    return isEditMode ? (
-      <Save className="mr-2 h-4 w-4" />
-    ) : (
-      <Plus className="mr-2 h-4 w-4" />
-    );
   };
 
   const isFormLoading = isSubmitting || externalLoading;

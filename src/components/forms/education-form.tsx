@@ -15,7 +15,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -256,17 +255,6 @@ export default function EducationForm({
       return isEditMode ? "Updating..." : "Creating...";
     }
     return isEditMode ? "Update Education" : "Add Education";
-  };
-
-  const getSubmitButtonIcon = () => {
-    if (isSubmitting) {
-      return <Loader2 className="mr-2 h-4 w-4 animate-spin" />;
-    }
-    return isEditMode ? (
-      <Save className="mr-2 h-4 w-4" />
-    ) : (
-      <Plus className="mr-2 h-4 w-4" />
-    );
   };
 
   const isFormLoading = isSubmitting || externalLoading;

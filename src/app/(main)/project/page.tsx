@@ -27,21 +27,15 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ExternalLink,
   Github,
   RefreshCw,
   FolderGit2,
-  Filter,
-  Calendar,
-  Tag,
-  Layers,
   Globe2,
   Search,
   GripVertical,
