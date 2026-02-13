@@ -38,6 +38,7 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
       desc: "",
       profileImage: undefined, // Changed from "" to undefined for file field
       resumeUrl: "",
+      metadataJson: "",
     },
   });
 
@@ -50,6 +51,9 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
         desc: existingBio?.desc || "",
         profileImage: undefined, // Reset to undefined for edit mode
         resumeUrl: existingBio?.resumeUrl || "",
+        metadataJson: existingBio?.metadata
+          ? JSON.stringify(existingBio.metadata, null, 2)
+          : "",
       });
     }
   }, [isLoading, existingBio, form, data]);
@@ -97,6 +101,9 @@ export function BioFormWrapper({ onSuccess, onError }: BioFormWrapperProps) {
         desc: existingBio.desc,
         profileImage: undefined, // Reset to undefined for cancel
         resumeUrl: existingBio.resumeUrl || "",
+        metadataJson: existingBio.metadata
+          ? JSON.stringify(existingBio.metadata, null, 2)
+          : "",
       });
     }
   };

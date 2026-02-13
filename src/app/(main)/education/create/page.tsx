@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import EducationForm from "@/components/forms/education-form";
 import { EducationFormValues } from "@/components/forms/form-schemas/education-schema";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 export default function CreateEducationPage() {
   const router = useRouter();
@@ -24,6 +25,8 @@ export default function CreateEducationPage() {
       if (data.img && data.img.length > 0) {
         formData.append("img", data.img[0]);
       }
+
+      appendMetadataToFormData(formData, parseMetadataJson(data.metadataJson));
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/education`,

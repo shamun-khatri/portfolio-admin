@@ -45,6 +45,7 @@ export default function SkillDetailPage() {
       name: "",
       category: "",
       icon: undefined,
+      metadataJson: "",
     },
   });
 
@@ -55,6 +56,7 @@ export default function SkillDetailPage() {
         name: skill.name || "",
         category: skill.category || "",
         icon: undefined, // Reset to undefined for edit mode
+        metadataJson: skill.metadata ? JSON.stringify(skill.metadata, null, 2) : "",
       });
     }
   }, [skill, isLoading, form]);
@@ -70,6 +72,7 @@ export default function SkillDetailPage() {
         name: skill.name,
         category: skill.category,
         icon: undefined,
+        metadataJson: skill.metadata ? JSON.stringify(skill.metadata, null, 2) : "",
       });
     }
   };

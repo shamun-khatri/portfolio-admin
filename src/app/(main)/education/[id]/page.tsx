@@ -24,16 +24,19 @@ import {
 } from "lucide-react";
 import EducationForm from "@/components/forms/education-form";
 import { EducationFormValues } from "@/components/forms/form-schemas/education-schema";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 // Types
 interface Education {
-  _id: string;
+  id?: string;
+  _id?: string;
   img: string;
   school: string;
   degree: string;
   date: string;
   grade: string;
   desc: string;
+  metadata?: Record<string, unknown>;
 }
 
 // API Functions
@@ -41,15 +44,26 @@ const fetchEducation = async (
   userId: string,
   id: string
 ): Promise<Education> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/education/${userId}/${id}`,
-  );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/education/${userId}`);
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch education entry: ${response.statusText}`);
+    throw new Error(`Failed to fetch education entries: ${response.statusText}`);
   }
 
-  return response.json();
+  const payload = await response.json();
+  const entries: Education[] = Array.isArray(payload)
+    ? payload
+    : Array.isArray(payload?.data)
+      ? payload.data
+      : [];
+
+  const education = entries.find((entry) => (entry.id || entry._id) === id);
+
+  if (!education) {
+    throw new Error("Education entry not found");
+  }
+
+  return education;
 };
 
 const updateEducation = async (
@@ -67,6 +81,8 @@ const updateEducation = async (
   if (data.img && data.img.length > 0) {
     formData.append("img", data.img[0]);
   }
+
+  appendMetadataToFormData(formData, parseMetadataJson(data.metadataJson));
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/education/${id}`,
@@ -378,6 +394,7 @@ export default function EducationDetailPage() {
     date: education.date,
     grade: education.grade,
     desc: education.desc,
+    metadataJson: education.metadata ? JSON.stringify(education.metadata, null, 2) : "",
     // Note: img is handled separately as it's a file upload
   };
 

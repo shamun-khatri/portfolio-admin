@@ -21,6 +21,7 @@ const baseSkillSchema = z.object({
     .string()
     .min(1, "Category is required")
     .max(30, "Category must be less than 30 characters"),
+  metadataJson: z.string().optional().or(z.literal("")),
 });
 
 // Create schema (icon required)
@@ -69,6 +70,7 @@ export type Skill = {
   icon: string; // This will be the URL after upload
   category: string;
   userId: string;
+  metadata?: Record<string, unknown>;
 };
 
 // Grouped skills type for listing page

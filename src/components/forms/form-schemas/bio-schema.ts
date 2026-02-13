@@ -24,6 +24,7 @@ const baseBioSchema = z.object({
     .min(10, "Description must be at least 10 characters")
     .max(1000, "Description must be less than 1000 characters"),
   resumeUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  metadataJson: z.string().optional().or(z.literal("")),
 });
 
 // Create schema (profile image required)
@@ -78,4 +79,5 @@ export type Bio = {
   profileImage: string; // This will be the URL after upload
   resumeUrl: string | null;
   userId: string;
+  metadata?: Record<string, unknown>;
 };

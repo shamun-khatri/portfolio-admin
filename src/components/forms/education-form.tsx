@@ -39,6 +39,7 @@ import {
   educationSchema,
 } from "@/components/forms/form-schemas/education-schema";
 import ImageUpload from "@/components/global/image-upload";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 export interface EducationFormProps {
   /**
@@ -117,6 +118,7 @@ const defaultFormValues: EducationFormValues = {
   grade: "",
   desc: "",
   degree: "",
+  metadataJson: "",
 };
 
 export default function EducationForm({
@@ -191,6 +193,8 @@ export default function EducationForm({
     if (data.img && data.img.length > 0) {
       formData.append("img", data.img[0]);
     }
+
+    appendMetadataToFormData(formData, parseMetadataJson(data.metadataJson));
 
     const url = isEditMode
       ? `${process.env.NEXT_PUBLIC_API_URL}/education/${educationId}`
@@ -432,6 +436,27 @@ export default function EducationForm({
             </FormItem>
           )}
         />
+
+            <FormField
+              control={form.control}
+              name="metadataJson"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
+                    Custom Metadata (JSON)
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='{"location":"Boston","isOngoing":false}'
+                      {...field}
+                      disabled={isReadOnly || isFormLoading}
+                      className="min-h-[100px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl p-4 font-mono text-xs"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
         {!isReadOnly && (
           <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-4">

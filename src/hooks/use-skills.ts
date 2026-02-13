@@ -4,6 +4,7 @@ import type {
   SkillFormData,
   GroupedSkills,
 } from "../components/forms/form-schemas/skill-schema";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 const toFormData = (data: SkillFormData): FormData => {
   const formData = new FormData();
@@ -20,14 +21,26 @@ const toFormData = (data: SkillFormData): FormData => {
     }
   }
 
+  appendMetadataToFormData(formData, parseMetadataJson(data.metadataJson));
+
   return formData;
+};
+
+const groupSkillsByCategory = (skills: Skill[]): GroupedSkills => {
+  return skills.reduce<GroupedSkills>((acc, skill) => {
+    const category = skill.category || "Uncategorized";
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(skill);
+    return acc;
+  }, {});
 };
 
 // Fetch all skills
 const fetchSkills = async (userId: string): Promise<Skill[]> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}`,
-    { credentials: "include" }
   );
   if (!response.ok) {
     throw new Error("Failed to fetch skills");
@@ -37,24 +50,20 @@ const fetchSkills = async (userId: string): Promise<Skill[]> => {
 
 // Fetch grouped skills
 const fetchGroupedSkills = async (userId: string): Promise<GroupedSkills> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}/grouped`,
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch grouped skills");
-  }
-  return response.json();
+  const skills = await fetchSkills(userId);
+  return groupSkillsByCategory(skills);
 };
 
 // Fetch single skill
 const fetchSkill = async (userId: string, id: string): Promise<Skill> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}/${id}`,
-  );
-  if (!response.ok) {
-    throw new Error("Failed to fetch skill");
+  const skills = await fetchSkills(userId);
+  const skill = skills.find((item) => item.id === id);
+
+  if (!skill) {
+    throw new Error("Skill not found");
   }
-  return response.json();
+
+  return skill;
 };
 
 // Create skill
@@ -123,7 +132,7 @@ export const useSkill = (userId: string, id: string) => {
   return useQuery<Skill>({
     queryKey: ["skills", id],
     queryFn: () => fetchSkill(userId, id),
-    enabled: !!id,
+    enabled: !!id && !!userId,
   });
 };
 

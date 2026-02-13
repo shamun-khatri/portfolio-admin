@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import ProjectForm from "@/components/forms/project-form";
 import { ProjectFormValues } from "@/components/forms/form-schemas/project-schema";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 // Types
 interface Project {
@@ -39,6 +40,7 @@ interface Project {
   projectUrl?: string;
   createdAt?: string;
   updatedAt?: string;
+  metadata?: Record<string, unknown>;
 }
 
 // Helper function to convert form data to FormData
@@ -46,6 +48,8 @@ const toFormData = (data: Record<string, unknown>): FormData => {
   const formData = new FormData();
 
   Object.entries(data).forEach(([key, value]) => {
+    if (key === "metadataJson") return;
+
     if (value === undefined || value === null) return;
 
     // Handle array values
@@ -69,6 +73,11 @@ const toFormData = (data: Record<string, unknown>): FormData => {
     // Other primitives
     formData.append(key, String(value));
   });
+
+  appendMetadataToFormData(
+    formData,
+    parseMetadataJson(typeof data.metadataJson === "string" ? data.metadataJson : "")
+  );
 
   return formData;
 };
@@ -490,6 +499,7 @@ export default function ProjectDetailPage() {
     category: project.category,
     github: project.github || "",
     projectUrl: project.projectUrl || "",
+    metadataJson: project.metadata ? JSON.stringify(project.metadata, null, 2) : "",
     // Note: img is handled separately as it's a file upload
   };
 

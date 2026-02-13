@@ -268,6 +268,26 @@ export function BioForm({
                   </FormItem>
                 )}
               />
+
+              <FormField
+                control={form.control}
+                name="metadataJson"
+                render={({ field }) => (
+                  <FormItem className="max-w-2xl space-y-3">
+                    <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
+                      Custom Metadata (JSON)
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder='{"twitter":"https://x.com/you","availability":"Open to work"}'
+                        {...field}
+                        className="min-h-[100px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl p-4 font-mono text-xs"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-end gap-4 pt-8">

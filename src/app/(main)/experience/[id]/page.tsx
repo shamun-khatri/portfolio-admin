@@ -24,16 +24,19 @@ import {
 } from "lucide-react";
 import ExperienceForm from "@/components/forms/experience-form";
 import { ExperienceFormValues } from "@/components/forms/form-schemas/experience-schema";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 // Types
 interface Experience {
-  _id: string;
+  id?: string;
+  _id?: string;
   img: string;
   role: string;
   company: string;
   date: string;
   desc: string;
   skills?: string[];
+  metadata?: Record<string, unknown>;
 }
 
 // API Functions
@@ -72,6 +75,8 @@ const updateExperience = async (
   if (data.img && data.img.length > 0) {
     formData.append("img", data.img[0]);
   }
+
+  appendMetadataToFormData(formData, parseMetadataJson(data.metadataJson));
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/experiences/${id}`,
@@ -399,6 +404,7 @@ export default function ExperienceDetailPage() {
     date: experience.date,
     desc: experience.desc,
     skills: experience.skills || [],
+    metadataJson: experience.metadata ? JSON.stringify(experience.metadata, null, 2) : "",
     // Note: img is handled separately as it's a file upload
   };
 

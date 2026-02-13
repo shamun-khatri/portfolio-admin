@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import ExperienceForm from "@/components/forms/experience-form";
 import { ExperienceFormValues } from "@/components/forms/form-schemas/experience-schema";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 export default function CreateExperiencePage() {
   const router = useRouter();
@@ -30,6 +31,8 @@ export default function CreateExperiencePage() {
       if (data.img && data.img.length > 0) {
         formData.append("img", data.img[0]);
       }
+
+      appendMetadataToFormData(formData, parseMetadataJson(data.metadataJson));
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/experiences`,

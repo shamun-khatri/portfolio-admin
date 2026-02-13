@@ -37,6 +37,7 @@ export const experienceSchema = z.object({
   skills: z
     .array(z.string())
     .default([]),
+  metadataJson: z.string().optional().or(z.literal("")),
 });
 
 export type ExperienceFormValues = z.input<typeof experienceSchema>;

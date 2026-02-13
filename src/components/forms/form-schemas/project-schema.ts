@@ -42,6 +42,7 @@ const baseProjectSchema = z.object({
     .url("Please enter a valid project URL")
     .optional()
     .or(z.literal("")),
+  metadataJson: z.string().optional().or(z.literal("")),
 });
 
 // Create schema (image required)

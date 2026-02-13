@@ -42,6 +42,7 @@ import {
   experienceSchema,
 } from "@/components/forms/form-schemas/experience-schema";
 import ImageUpload from "@/components/global/image-upload";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 export interface ExperienceFormProps {
   /**
@@ -120,6 +121,7 @@ const defaultFormValues: ExperienceFormValues = {
   date: "",
   desc: "",
   skills: [],
+  metadataJson: "",
 };
 
 export default function ExperienceForm({
@@ -201,6 +203,8 @@ export default function ExperienceForm({
     if (data.img && data.img.length > 0) {
       formData.append("img", data.img[0]);
     }
+
+    appendMetadataToFormData(formData, parseMetadataJson(data.metadataJson));
 
     const url = isEditMode
       ? `${process.env.NEXT_PUBLIC_API_URL}/experiences/${experienceId}`
@@ -450,6 +454,27 @@ export default function ExperienceForm({
             </FormItem>
           )}
         />
+
+            <FormField
+              control={form.control}
+              name="metadataJson"
+              render={({ field }) => (
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
+                    Custom Metadata (JSON)
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder='{"location":"Remote","isRemote":true}'
+                      {...field}
+                      disabled={isReadOnly || isFormLoading}
+                      className="min-h-[100px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl p-4 font-mono text-xs"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
         <FormField
           control={form.control}

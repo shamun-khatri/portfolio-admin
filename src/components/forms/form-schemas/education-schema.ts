@@ -38,6 +38,7 @@ export const educationSchema = z.object({
     .string()
     .min(1, "Degree is required")
     .max(100, "Degree must be less than 100 characters"),
+  metadataJson: z.string().optional().or(z.literal("")),
 });
 
 export type EducationFormValues = z.infer<typeof educationSchema>;

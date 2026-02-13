@@ -3,6 +3,7 @@ import type {
   Bio,
   BioFormData,
 } from "../components/forms/form-schemas/bio-schema";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 const toFormData = (data: BioFormData, isUpdate: boolean = false): FormData => {
   const formData = new FormData();
@@ -25,6 +26,8 @@ const toFormData = (data: BioFormData, isUpdate: boolean = false): FormData => {
     // For updates, explicitly indicate no image change if no file provided
     // Don't append profileImage field at all to keep existing image
   }
+
+  appendMetadataToFormData(formData, parseMetadataJson(data.metadataJson));
 
   return formData;
 };

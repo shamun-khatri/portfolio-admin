@@ -8,12 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ProjectForm from "@/components/forms/project-form";
 import { ProjectFormValues } from "@/components/forms/form-schemas/project-schema";
+import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 // Helper function to convert form data to FormData
 const toFormData = (data: Record<string, unknown>): FormData => {
   const formData = new FormData();
 
   Object.entries(data).forEach(([key, value]) => {
+    if (key === "metadataJson") {
+      return;
+    }
+
     if (value === undefined || value === null) {
       // Skip undefined/null values except for image which should be validated earlier
       return;
@@ -48,6 +53,11 @@ const toFormData = (data: Record<string, unknown>): FormData => {
     // Other primitives
     formData.append(key, String(value));
   });
+
+  appendMetadataToFormData(
+    formData,
+    parseMetadataJson(typeof data.metadataJson === "string" ? data.metadataJson : "")
+  );
 
   return formData;
 };

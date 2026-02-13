@@ -22,6 +22,7 @@ export default function CreateSkillPage() {
       name: "",
       category: "",
       icon: undefined,
+      metadataJson: "",
     },
   });
 

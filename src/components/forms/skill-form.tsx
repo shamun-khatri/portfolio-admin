@@ -5,6 +5,7 @@ import Image from "next/image";
 import { type SkillFormData } from "./form-schemas/skill-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -97,6 +98,26 @@ export function SkillForm({
                           className="bg-background/40 border-border/40 focus:border-purple-500/50 focus:ring-purple-500/10 rounded-2xl h-14 px-6 font-bold transition-all"
                         />
                       </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="metadataJson"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
+                      Custom Metadata (JSON)
+                    </FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder='{"proficiency":90,"isFavorite":true}'
+                        {...field}
+                        className="min-h-[90px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl p-4 font-mono text-xs"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
