@@ -10,7 +10,7 @@ export const DEFAULT_CATEGORY_SCHEMAS = [
 ] as const;
 
 export const DEFAULT_CATEGORY_SCHEMA_SLUGS = DEFAULT_CATEGORY_SCHEMAS.map(
-  (item) => item.slug
+  (item) => item.slug as string
 );
 
 export type CustomEntityFieldType =
@@ -18,6 +18,7 @@ export type CustomEntityFieldType =
   | "textarea"
   | "number"
   | "date"
+  | "image"
   | "boolean"
   | "select"
   | "multiselect"

@@ -29,6 +29,16 @@ export const appendMetadataToFormData = (
 
     const metadataKey = `metadata.${key}`;
 
+    if (value instanceof File) {
+      formData.append(metadataKey, value);
+      return;
+    }
+
+    if (Array.isArray(value) && value.length > 0 && value.every((item) => item instanceof File)) {
+      value.forEach((file) => formData.append(metadataKey, file));
+      return;
+    }
+
     if (typeof value === "object") {
       formData.append(metadataKey, JSON.stringify(value));
       return;

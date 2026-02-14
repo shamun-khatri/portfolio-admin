@@ -8,6 +8,7 @@ import {
   GraduationCap,
   Layers,
   Projector,
+  Settings2,
   User,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -66,7 +67,7 @@ const baseData = {
       ],
     },
     {
-      title: "project",
+      title: "Project",
       url: "/project",
       icon: Projector,
       items: [
@@ -77,7 +78,7 @@ const baseData = {
       ],
     },
     {
-      title: "education",
+      title: "Education",
       url: "/education",
       icon: GraduationCap,
       items: [
@@ -89,9 +90,8 @@ const baseData = {
     },
     {
       title: "Custom Fields",
-      url: "/custom-entities",
-      icon: Layers,
-      items: [{ title: "Manage", url: "/custom-entities" }],
+      url: "/custom-fields",
+      icon: Settings2,
     },
   ],
   // navSecondary: [
@@ -137,12 +137,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ...baseData.navMain,
     ...dynamicCustomTypes.map((type) => ({
       title: type.name,
-      url: `/custom-entities?typeId=${type.id}`,
+      url: `/c/${type.slug}`,
       icon: Layers,
       items: [
         {
           title: "Entries",
-          url: `/custom-entities?typeId=${type.id}`,
+          url: `/c/${type.slug}`,
         },
       ],
     })),

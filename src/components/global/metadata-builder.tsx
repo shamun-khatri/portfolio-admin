@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,6 +40,15 @@ const parseSourceJson = (value?: string): Record<string, unknown> => {
   }
 
   return {};
+};
+
+const fileToDataUrl = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Failed to read image file"));
+    reader.readAsDataURL(file);
+  });
 };
 
 const inferType = (value: unknown): MetadataValueType => {
@@ -196,6 +206,44 @@ export function MetadataBuilder({
     const current = getSchemaInputValue(field);
     const disabled = readOnly;
 
+    if (field.type === "image") {
+      const imageSrc = typeof schemaValues[field.key] === "string" ? String(schemaValues[field.key]) : "";
+
+      return (
+        <div className="space-y-2">
+          <Input
+            type="file"
+            accept="image/*"
+            disabled={disabled}
+            onChange={async (event) => {
+              const file = event.target.files?.[0];
+              if (!file) return;
+
+              try {
+                const dataUrl = await fileToDataUrl(file);
+                emitSchemaValueChange(field, dataUrl);
+              } catch {
+                emitSchemaValueChange(field, "");
+              }
+            }}
+          />
+
+          {imageSrc ? (
+            <div className="rounded-md border border-border/50 p-2">
+              <Image
+                src={imageSrc}
+                alt={field.label}
+                width={96}
+                height={96}
+                unoptimized
+                className="h-24 w-24 rounded-md object-cover"
+              />
+            </div>
+          ) : null}
+        </div>
+      );
+    }
+
     if (field.type === "textarea") {
       return (
         <Textarea
@@ -267,6 +315,7 @@ export function MetadataBuilder({
       textarea: "text",
       number: "number",
       date: "date",
+      image: "text",
       boolean: "text",
       select: "text",
       multiselect: "text",
