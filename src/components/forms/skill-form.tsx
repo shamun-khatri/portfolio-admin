@@ -5,7 +5,6 @@ import Image from "next/image";
 import { type SkillFormData } from "./form-schemas/skill-schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -18,6 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import ImageUpload from "@/components/global/image-upload";
 import MetadataBuilder from "@/components/global/metadata-builder";
+import { useCustomFieldSchema } from "@/hooks/use-custom-entities";
 
 interface SkillFormProps {
   form: UseFormReturn<SkillFormData>;
@@ -36,6 +36,7 @@ export function SkillForm({
   mode = "create",
   existingIconUrl,
 }: SkillFormProps) {
+  const { fieldSchema } = useCustomFieldSchema("skills");
   return (
     <Card className="max-w-xl mx-auto relative overflow-hidden bg-card/60 backdrop-blur-xl border-border/40 shadow-2xl rounded-[32px]">
       {/* Decorative Gradient elements */}
@@ -111,30 +112,14 @@ export function SkillForm({
                 render={({ field }) => (
                   <FormItem className="space-y-3">
                     <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
-                      Custom Metadata (JSON)
-                    </FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder='{"proficiency":90,"isFavorite":true}'
-                        {...field}
-                        className="min-h-[90px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl p-4 font-mono text-xs"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="metadataJson"
-                render={({ field }) => (
-                  <FormItem className="space-y-3">
-                    <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
                       Custom Metadata
                     </FormLabel>
                     <FormControl>
-                      <MetadataBuilder value={field.value} onChange={field.onChange} />
+                      <MetadataBuilder
+                        value={field.value}
+                        onChange={field.onChange}
+                        fieldDefinitions={fieldSchema}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

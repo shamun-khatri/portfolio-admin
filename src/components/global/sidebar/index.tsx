@@ -11,7 +11,10 @@ import {
   User,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useCustomEntityTypes } from "@/hooks/use-custom-entities";
+import {
+  DEFAULT_CATEGORY_SCHEMA_SLUGS,
+  useCustomEntityTypes,
+} from "@/hooks/use-custom-entities";
 
 import {
   Sidebar,
@@ -85,10 +88,10 @@ const baseData = {
       ],
     },
     {
-      title: "Custom Entities",
+      title: "Custom Fields",
       url: "/custom-entities",
       icon: Layers,
-      items: [],
+      items: [{ title: "Manage", url: "/custom-entities" }],
     },
   ],
   // navSecondary: [
@@ -126,22 +129,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
   const { data: customTypes = [] } = useCustomEntityTypes();
 
-  const navMain = baseData.navMain.map((item) => {
-    if (item.url !== "/custom-entities") {
-      return item;
-    }
+  const dynamicCustomTypes = customTypes.filter(
+    (type) => !DEFAULT_CATEGORY_SCHEMA_SLUGS.includes(type.slug)
+  );
 
-    return {
-      ...item,
+  const navMain = [
+    ...baseData.navMain,
+    ...dynamicCustomTypes.map((type) => ({
+      title: type.name,
+      url: `/custom-entities?typeId=${type.id}`,
+      icon: Layers,
       items: [
-        { title: "Manage", url: "/custom-entities" },
-        ...customTypes.map((type) => ({
-          title: type.name,
+        {
+          title: "Entries",
           url: `/custom-entities?typeId=${type.id}`,
-        })),
+        },
       ],
-    };
-  });
+    })),
+  ];
 
   return (
     <Sidebar variant="inset" {...props}>

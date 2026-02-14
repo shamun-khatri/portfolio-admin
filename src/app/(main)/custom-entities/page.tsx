@@ -10,9 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import {
   CustomEntity,
+  DEFAULT_CATEGORY_SCHEMAS,
+  DEFAULT_CATEGORY_SCHEMA_SLUGS,
   CustomEntityFieldDefinition,
   CustomEntityFieldType,
   CustomEntityType,
+  getCustomEntityTypeFields,
   useCreateCustomEntity,
   useCreateCustomEntityType,
   useCustomEntitiesByType,
@@ -116,20 +119,41 @@ export default function CustomEntitiesPage() {
     [customEntityTypes, selectedTypeId]
   );
 
+  const customCategoryTypes = useMemo(
+    () =>
+      customEntityTypes.filter(
+        (type) => !DEFAULT_CATEGORY_SCHEMA_SLUGS.includes(type.slug)
+      ),
+    [customEntityTypes]
+  );
+
+  const defaultCategoryTypes = useMemo(
+    () =>
+      DEFAULT_CATEGORY_SCHEMAS.map((base) => ({
+        ...base,
+        type: customEntityTypes.find((item) => item.slug === base.slug) || null,
+      })),
+    [customEntityTypes]
+  );
+
+  const isDefaultSchemaType = Boolean(
+    selectedType && DEFAULT_CATEGORY_SCHEMA_SLUGS.includes(selectedType.slug)
+  );
+
   useEffect(() => {
     const queryTypeId = searchParams.get("typeId");
 
-    if (queryTypeId && customEntityTypes.some((type) => type.id === queryTypeId)) {
+    if (queryTypeId && customCategoryTypes.some((type) => type.id === queryTypeId)) {
       setSelectedTypeId(queryTypeId);
       return;
     }
 
-    if (!selectedTypeId && customEntityTypes.length > 0) {
-      const fallbackTypeId = customEntityTypes[0].id;
+    if (!selectedTypeId && customCategoryTypes.length > 0) {
+      const fallbackTypeId = customCategoryTypes[0].id;
       setSelectedTypeId(fallbackTypeId);
       router.replace(`/custom-entities?typeId=${fallbackTypeId}`);
     }
-  }, [customEntityTypes, selectedTypeId, searchParams, router]);
+  }, [customCategoryTypes, selectedTypeId, searchParams, router]);
 
   const {
     data: customEntities = [],
@@ -158,8 +182,28 @@ export default function CustomEntitiesPage() {
     setTypeName(type.name);
     setTypeSlug(type.slug);
     setTypeDescription(type.description || "");
+    const existingFields = getCustomEntityTypeFields(type);
     setTypeFields(
-      type.fields?.length > 0 ? type.fields.map((field) => ({ ...field })) : [createEmptyField()]
+      existingFields.length > 0
+        ? existingFields.map((field) => ({ ...field }))
+        : [createEmptyField()]
+    );
+  };
+
+  const handleStartDefaultSchemaEdit = (
+    slug: string,
+    name: string,
+    type: CustomEntityType | null
+  ) => {
+    setEditingType(type);
+    setTypeName(type?.name || name);
+    setTypeSlug(slug);
+    setTypeDescription(type?.description || `${name} custom field schema`);
+    const existingFields = getCustomEntityTypeFields(type);
+    setTypeFields(
+      existingFields.length > 0
+        ? existingFields.map((field) => ({ ...field }))
+        : [createEmptyField()]
     );
   };
 
@@ -189,7 +233,7 @@ export default function CustomEntitiesPage() {
       name: typeName.trim(),
       slug: toSlug(typeSlug),
       description: typeDescription.trim(),
-      fields: normalizedFields,
+      fieldSchema: normalizedFields,
     };
 
     try {
@@ -214,7 +258,7 @@ export default function CustomEntitiesPage() {
     try {
       await deleteTypeMutation.mutateAsync(typeId);
       if (selectedTypeId === typeId) {
-        const nextType = customEntityTypes.find((type) => type.id !== typeId);
+        const nextType = customCategoryTypes.find((type) => type.id !== typeId);
         const nextTypeId = nextType?.id || "";
         setSelectedTypeId(nextTypeId);
         router.replace(nextTypeId ? `/custom-entities?typeId=${nextTypeId}` : "/custom-entities");
@@ -231,7 +275,7 @@ export default function CustomEntitiesPage() {
 
     const payload: Record<string, unknown> = {};
 
-    for (const field of selectedType.fields || []) {
+    for (const field of getCustomEntityTypeFields(selectedType)) {
       const rawValue = entityValues[field.key];
 
       if (
@@ -367,10 +411,36 @@ export default function CustomEntitiesPage() {
         <div>
           <h1 className="text-2xl font-bold">Custom Categories</h1>
           <p className="text-muted-foreground text-sm">
-            Create dynamic modules like Certifications, Achievements, Clients, or anything else.
+            Manage schemas once, then use them consistently across create, edit, and view pages.
           </p>
         </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Default Category Schemas</CardTitle>
+        </CardHeader>
+        <CardContent className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-3">
+          {defaultCategoryTypes.map((item) => (
+            <div key={item.slug} className="rounded-lg border p-3 space-y-3">
+              <div>
+                <p className="font-medium">{item.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  {getCustomEntityTypeFields(item.type).length} configured fields
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="w-full"
+                onClick={() => handleStartDefaultSchemaEdit(item.slug, item.name, item.type)}
+              >
+                <Pencil className="h-3.5 w-3.5 mr-1" /> Manage Fields
+              </Button>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <Card className="xl:col-span-1">
@@ -380,10 +450,10 @@ export default function CustomEntitiesPage() {
           <CardContent className="space-y-3">
             {isTypesLoading ? (
               <p className="text-sm text-muted-foreground">Loading categories...</p>
-            ) : customEntityTypes.length === 0 ? (
+            ) : customCategoryTypes.length === 0 ? (
               <p className="text-sm text-muted-foreground">No custom categories yet.</p>
             ) : (
-              customEntityTypes.map((type) => (
+              customCategoryTypes.map((type) => (
                 <div
                   key={type.id}
                   className={`rounded-lg border p-3 ${
@@ -428,7 +498,11 @@ export default function CustomEntitiesPage() {
         <Card className="xl:col-span-2">
           <CardHeader>
             <CardTitle className="text-base">
-              {editingType ? "Edit Category" : "Create Category"}
+              {typeSlug && DEFAULT_CATEGORY_SCHEMA_SLUGS.includes(typeSlug)
+                ? `Manage ${typeName || typeSlug} Schema`
+                : editingType
+                  ? "Edit Category"
+                  : "Create Category"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -436,6 +510,7 @@ export default function CustomEntitiesPage() {
               <Input
                 placeholder="Category name (e.g. Certifications)"
                 value={typeName}
+                disabled={Boolean(typeSlug && DEFAULT_CATEGORY_SCHEMA_SLUGS.includes(typeSlug))}
                 onChange={(event) => {
                   const next = event.target.value;
                   setTypeName(next);
@@ -447,6 +522,7 @@ export default function CustomEntitiesPage() {
               <Input
                 placeholder="Slug (e.g. certifications)"
                 value={typeSlug}
+                disabled={Boolean(typeSlug && DEFAULT_CATEGORY_SCHEMA_SLUGS.includes(typeSlug))}
                 onChange={(event) => setTypeSlug(toSlug(event.target.value))}
               />
             </div>
@@ -590,6 +666,11 @@ export default function CustomEntitiesPage() {
         <CardContent className="space-y-4">
           {!selectedType ? (
             <p className="text-sm text-muted-foreground">Create/select a category first.</p>
+          ) : isDefaultSchemaType ? (
+            <p className="text-sm text-muted-foreground">
+              This is a default category schema. Entries are managed from its native section (for example,
+              Education or Experience).
+            </p>
           ) : (
             <>
               <div className="space-y-3 rounded-lg border p-4">
@@ -599,7 +680,7 @@ export default function CustomEntitiesPage() {
                   onChange={(event) => setEntityName(event.target.value)}
                 />
 
-                {selectedType.fields?.map((field) => {
+                {getCustomEntityTypeFields(selectedType).map((field) => {
                   const currentValue = entityValues[field.key];
 
                   if (field.type === "textarea" || field.type === "json") {

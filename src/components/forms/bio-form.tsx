@@ -25,6 +25,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import ImageUpload from "@/components/global/image-upload";
 import MetadataBuilder from "@/components/global/metadata-builder";
+import { useCustomFieldSchema } from "@/hooks/use-custom-entities";
 
 interface BioFormProps {
   form: UseFormReturn<BioFormData>;
@@ -43,6 +44,7 @@ export function BioForm({
   mode = "create",
   existingImageUrl,
 }: BioFormProps) {
+  const { fieldSchema } = useCustomFieldSchema("bio");
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "designations",
@@ -279,7 +281,11 @@ export function BioForm({
                       Custom Metadata
                     </FormLabel>
                     <FormControl>
-                      <MetadataBuilder value={field.value} onChange={field.onChange} />
+                      <MetadataBuilder
+                        value={field.value}
+                        onChange={field.onChange}
+                        fieldDefinitions={fieldSchema}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

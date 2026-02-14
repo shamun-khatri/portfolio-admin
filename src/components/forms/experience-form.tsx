@@ -44,6 +44,7 @@ import {
 import ImageUpload from "@/components/global/image-upload";
 import MetadataBuilder from "@/components/global/metadata-builder";
 import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
+import { useCustomFieldSchema } from "@/hooks/use-custom-entities";
 
 export interface ExperienceFormProps {
   /**
@@ -142,6 +143,7 @@ export default function ExperienceForm({
 }: ExperienceFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagInput, setTagInput] = useState("");
+  const { fieldSchema } = useCustomFieldSchema("experience");
 
   const isReadOnly = mode === "view";
   const isEditMode = mode === "edit";
@@ -465,7 +467,12 @@ export default function ExperienceForm({
                     Custom Metadata
                   </FormLabel>
                   <FormControl>
-                    <MetadataBuilder value={field.value} onChange={field.onChange} />
+                    <MetadataBuilder
+                      value={field.value}
+                      onChange={field.onChange}
+                      fieldDefinitions={fieldSchema}
+                      readOnly={isReadOnly}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

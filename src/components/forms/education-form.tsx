@@ -41,6 +41,7 @@ import {
 import ImageUpload from "@/components/global/image-upload";
 import MetadataBuilder from "@/components/global/metadata-builder";
 import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
+import { useCustomFieldSchema } from "@/hooks/use-custom-entities";
 
 export interface EducationFormProps {
   /**
@@ -138,6 +139,7 @@ export default function EducationForm({
   existingImageUrl,
 }: EducationFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { fieldSchema } = useCustomFieldSchema("education");
 
   const isReadOnly = mode === "view";
   const isEditMode = mode === "edit";
@@ -447,7 +449,12 @@ export default function EducationForm({
                     Custom Metadata
                   </FormLabel>
                   <FormControl>
-                    <MetadataBuilder value={field.value} onChange={field.onChange} />
+                    <MetadataBuilder
+                      value={field.value}
+                      onChange={field.onChange}
+                      fieldDefinitions={fieldSchema}
+                      readOnly={isReadOnly}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

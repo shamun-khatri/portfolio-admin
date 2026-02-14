@@ -42,6 +42,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import ImageUpload from "@/components/global/image-upload";
 import MetadataBuilder from "@/components/global/metadata-builder";
+import { useCustomFieldSchema } from "@/hooks/use-custom-entities";
 
 import {
   projectCreateSchema,
@@ -70,6 +71,7 @@ export default function ProjectForm({
   isLoading = false,
 }: ProjectFormProps) {
   const [tagInput, setTagInput] = useState("");
+  const { fieldSchema } = useCustomFieldSchema("project");
 
   const schema = mode === "create" ? projectCreateSchema : projectUpdateSchema;
   const form = useForm<ProjectFormValues>({
@@ -335,7 +337,11 @@ export default function ProjectForm({
                     Custom Metadata
                   </div>
                   <FormControl>
-                    <MetadataBuilder value={field.value} onChange={field.onChange} />
+                    <MetadataBuilder
+                      value={field.value}
+                      onChange={field.onChange}
+                      fieldDefinitions={fieldSchema}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -1,6 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { appendMetadataToFormData } from "@/lib/metadata-formdata";
 
+export const DEFAULT_CATEGORY_SCHEMAS = [
+  { slug: "bio", name: "Bio" },
+  { slug: "skills", name: "Skills" },
+  { slug: "experience", name: "Experience" },
+  { slug: "education", name: "Education" },
+  { slug: "project", name: "Project" },
+] as const;
+
+export const DEFAULT_CATEGORY_SCHEMA_SLUGS = DEFAULT_CATEGORY_SCHEMAS.map(
+  (item) => item.slug
+);
+
 export type CustomEntityFieldType =
   | "text"
   | "textarea"
@@ -26,7 +38,8 @@ export type CustomEntityType = {
   name: string;
   slug: string;
   description?: string;
-  fields: CustomEntityFieldDefinition[];
+  fields?: CustomEntityFieldDefinition[];
+  fieldSchema?: CustomEntityFieldDefinition[];
   createdAt?: string;
   updatedAt?: string;
 };
@@ -44,7 +57,7 @@ type UpsertCustomEntityTypePayload = {
   name: string;
   slug: string;
   description?: string;
-  fields: CustomEntityFieldDefinition[];
+  fieldSchema: CustomEntityFieldDefinition[];
 };
 
 type UpsertCustomEntityPayload = {
@@ -70,6 +83,26 @@ const parseArrayResponse = <T>(payload: unknown): T[] => {
   return [];
 };
 
+const normalizeCustomEntityType = (item: CustomEntityType): CustomEntityType => {
+  const normalizedFields = item.fieldSchema ?? item.fields ?? [];
+
+  return {
+    ...item,
+    fields: normalizedFields,
+    fieldSchema: normalizedFields,
+  };
+};
+
+export const getCustomEntityTypeFields = (
+  item: CustomEntityType | null | undefined
+): CustomEntityFieldDefinition[] => {
+  if (!item) {
+    return [];
+  }
+
+  return item.fieldSchema ?? item.fields ?? [];
+};
+
 const fetchCustomEntityTypes = async (): Promise<CustomEntityType[]> => {
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/custom-entity-types`, {
     credentials: "include",
@@ -80,7 +113,7 @@ const fetchCustomEntityTypes = async (): Promise<CustomEntityType[]> => {
   }
 
   const payload = await response.json();
-  return parseArrayResponse<CustomEntityType>(payload);
+  return parseArrayResponse<CustomEntityType>(payload).map(normalizeCustomEntityType);
 };
 
 const createCustomEntityType = async (
@@ -97,7 +130,8 @@ const createCustomEntityType = async (
     throw new Error("Failed to create custom entity type");
   }
 
-  return response.json();
+  const result = (await response.json()) as CustomEntityType;
+  return normalizeCustomEntityType(result);
 };
 
 const updateCustomEntityType = async (
@@ -115,7 +149,8 @@ const updateCustomEntityType = async (
     throw new Error("Failed to update custom entity type");
   }
 
-  return response.json();
+  const result = (await response.json()) as CustomEntityType;
+  return normalizeCustomEntityType(result);
 };
 
 const deleteCustomEntityType = async (id: string): Promise<void> => {
@@ -202,6 +237,17 @@ export const useCustomEntityTypes = () => {
     queryKey: ["custom-entity-types"],
     queryFn: fetchCustomEntityTypes,
   });
+};
+
+export const useCustomFieldSchema = (slug: string) => {
+  const query = useCustomEntityTypes();
+  const type = (query.data || []).find((item) => item.slug === slug) || null;
+
+  return {
+    ...query,
+    type,
+    fieldSchema: getCustomEntityTypeFields(type),
+  };
 };
 
 export const useCreateCustomEntityType = () => {
