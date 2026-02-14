@@ -2,6 +2,7 @@
 
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import {
@@ -36,6 +37,7 @@ export function NavMain({
   }[];
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [openKeys, setOpenKeys] = useState<Record<string, boolean>>({});
 
   // On route change, open only the active parent submenu by default.
@@ -54,10 +56,28 @@ export function NavMain({
   }, [pathname, items]);
 
   const normalize = (u: string) => (u?.startsWith("/") ? u : `/${u}`);
+  const splitHref = (href: string) => {
+    const normalized = normalize(href);
+    const [path, queryString = ""] = normalized.split("?");
+    return { path, queryString };
+  };
+
   const isActive = (path: string, href: string) => {
-    const h = normalize(href);
-    // exact or nested route
-    return path === h || path.startsWith(h + "/");
+    const { path: hrefPath, queryString } = splitHref(href);
+    const pathMatch = path === hrefPath || path.startsWith(hrefPath + "/");
+
+    if (!pathMatch) return false;
+    if (!queryString) return true;
+
+    const hrefParams = new URLSearchParams(queryString);
+
+    for (const [key, value] of hrefParams.entries()) {
+      if (searchParams.get(key) !== value) {
+        return false;
+      }
+    }
+
+    return true;
   };
 
   return (

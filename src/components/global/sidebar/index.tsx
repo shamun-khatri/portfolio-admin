@@ -6,10 +6,12 @@ import {
   BrainCircuit,
   Command,
   GraduationCap,
+  Layers,
   Projector,
   User,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useCustomEntityTypes } from "@/hooks/use-custom-entities";
 
 import {
   Sidebar,
@@ -24,7 +26,7 @@ import Link from "next/link";
 import { NavMain } from "./nav-main";
 import { NavUser } from "./nav-user";
 
-const data = {
+const baseData = {
   // user: {
   //   name: "shadcn",
   //   email: "m@example.com",
@@ -82,6 +84,12 @@ const data = {
         },
       ],
     },
+    {
+      title: "Custom Entities",
+      url: "/custom-entities",
+      icon: Layers,
+      items: [],
+    },
   ],
   // navSecondary: [
   //   {
@@ -116,6 +124,24 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session } = useSession();
+  const { data: customTypes = [] } = useCustomEntityTypes();
+
+  const navMain = baseData.navMain.map((item) => {
+    if (item.url !== "/custom-entities") {
+      return item;
+    }
+
+    return {
+      ...item,
+      items: [
+        { title: "Manage", url: "/custom-entities" },
+        ...customTypes.map((type) => ({
+          title: type.name,
+          url: `/custom-entities?typeId=${type.id}`,
+        })),
+      ],
+    };
+  });
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -137,7 +163,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={navMain} />
       </SidebarContent>
       {session?.user && (
         <SidebarFooter>

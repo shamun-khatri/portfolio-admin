@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import ImageUpload from "@/components/global/image-upload";
+import MetadataBuilder from "@/components/global/metadata-builder";
 
 interface BioFormProps {
   form: UseFormReturn<BioFormData>;
@@ -275,14 +276,10 @@ export function BioForm({
                 render={({ field }) => (
                   <FormItem className="max-w-2xl space-y-3">
                     <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
-                      Custom Metadata (JSON)
+                      Custom Metadata
                     </FormLabel>
                     <FormControl>
-                      <Textarea
-                        placeholder='{"twitter":"https://x.com/you","availability":"Open to work"}'
-                        {...field}
-                        className="min-h-[100px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl p-4 font-mono text-xs"
-                      />
+                      <MetadataBuilder value={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

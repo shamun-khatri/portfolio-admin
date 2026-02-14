@@ -41,6 +41,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import ImageUpload from "@/components/global/image-upload";
+import MetadataBuilder from "@/components/global/metadata-builder";
 
 import {
   projectCreateSchema,
@@ -331,14 +332,10 @@ export default function ProjectForm({
               render={({ field }) => (
                 <FormItem className="space-y-4">
                   <div className="flex items-center gap-2 text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
-                    Custom Metadata (JSON)
+                    Custom Metadata
                   </div>
                   <FormControl>
-                    <Textarea
-                      placeholder='{"status":"In Progress","videoUrl":"https://..."}'
-                      className="min-h-[110px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-3xl p-4 font-mono text-xs resize-none"
-                      {...field}
-                    />
+                    <MetadataBuilder value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

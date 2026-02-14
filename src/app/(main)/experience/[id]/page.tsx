@@ -44,9 +44,9 @@ const fetchExperience = async (
   userId: string,
   id: string
 ): Promise<Experience> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/experiences/${userId}/${id}`,
-  );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/${userId}/${id}`, {
+    credentials: "include",
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch experience entry: ${response.statusText}`);

@@ -34,12 +34,10 @@ const toFormData = (data: BioFormData, isUpdate: boolean = false): FormData => {
 
 const fetchBio = async (userId: string): Promise<Bio | null> => {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/bio/${userId}`,
-      {
-        method: "GET",
-      }
-    );
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bio/${userId}`, {
+      method: "GET",
+      credentials: "include",
+    });
     if (!response.ok) {
       throw new Error("Failed to fetch bio");
     }

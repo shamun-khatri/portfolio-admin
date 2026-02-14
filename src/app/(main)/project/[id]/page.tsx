@@ -84,9 +84,9 @@ const toFormData = (data: Record<string, unknown>): FormData => {
 
 // API Functions
 const fetchProject = async (id: string): Promise<Project> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/projects/id/${id}`,
-  );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/id/${id}`, {
+    credentials: "include",
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch project: ${response.statusText}`);

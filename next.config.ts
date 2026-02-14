@@ -9,8 +9,6 @@ const nextConfig: NextConfig = {
         hostname: "portfolio-shamun.s3.ap-south-1.amazonaws.com",
         pathname: "/images/**",
       },
-      // If images might be at root without /images/ prefix, uncomment below:
-      // { protocol: "https", hostname: "portfolio-shamun.s3.ap-south-1.amazonaws.com", pathname: "**" },
     ],
   },
 };

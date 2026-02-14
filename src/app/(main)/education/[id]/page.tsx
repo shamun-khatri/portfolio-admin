@@ -44,7 +44,9 @@ const fetchEducation = async (
   userId: string,
   id: string
 ): Promise<Education> => {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/education/${userId}`);
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/education/${userId}`, {
+    credentials: "include",
+  });
 
   if (!response.ok) {
     throw new Error(`Failed to fetch education entries: ${response.statusText}`);

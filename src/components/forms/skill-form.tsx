@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import ImageUpload from "@/components/global/image-upload";
+import MetadataBuilder from "@/components/global/metadata-builder";
 
 interface SkillFormProps {
   form: UseFormReturn<SkillFormData>;
@@ -118,6 +119,22 @@ export function SkillForm({
                         {...field}
                         className="min-h-[90px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl p-4 font-mono text-xs"
                       />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="metadataJson"
+                render={({ field }) => (
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
+                      Custom Metadata
+                    </FormLabel>
+                    <FormControl>
+                      <MetadataBuilder value={field.value} onChange={field.onChange} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

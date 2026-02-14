@@ -39,9 +39,9 @@ const groupSkillsByCategory = (skills: Skill[]): GroupedSkills => {
 
 // Fetch all skills
 const fetchSkills = async (userId: string): Promise<Skill[]> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}`,
-  );
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/skills/${userId}`, {
+    credentials: "include",
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch skills");
   }

@@ -39,6 +39,7 @@ import {
   educationSchema,
 } from "@/components/forms/form-schemas/education-schema";
 import ImageUpload from "@/components/global/image-upload";
+import MetadataBuilder from "@/components/global/metadata-builder";
 import { appendMetadataToFormData, parseMetadataJson } from "@/lib/metadata-formdata";
 
 export interface EducationFormProps {
@@ -443,15 +444,10 @@ export default function EducationForm({
               render={({ field }) => (
                 <FormItem className="space-y-3">
                   <FormLabel className="text-xs font-black uppercase tracking-[0.2em] text-slate-500/80">
-                    Custom Metadata (JSON)
+                    Custom Metadata
                   </FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder='{"location":"Boston","isOngoing":false}'
-                      {...field}
-                      disabled={isReadOnly || isFormLoading}
-                      className="min-h-[100px] bg-background/40 border-border/40 focus:border-slate-500/50 focus:ring-slate-500/10 rounded-2xl p-4 font-mono text-xs"
-                    />
+                    <MetadataBuilder value={field.value} onChange={field.onChange} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
