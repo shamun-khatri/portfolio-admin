@@ -43,6 +43,8 @@ import { CSS } from "@dnd-kit/utilities";
 
 type Experience = {
   id: string;
+  persistedId?: string;
+  _id?: string;
   img: string;
   role: string;
   company: string;
@@ -50,6 +52,62 @@ type Experience = {
   desc: string;
   skills: string[];
   position?: number;
+};
+
+type ExperienceApiItem = Partial<Experience> & {
+  id?: unknown;
+  _id?: unknown;
+  [key: string]: unknown;
+};
+
+const getStringId = (value: unknown): string | null => {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+
+  if (value && typeof value === "object") {
+    const obj = value as Record<string, unknown>;
+
+    if (typeof obj.$oid === "string" && obj.$oid.trim().length > 0) {
+      return obj.$oid.trim();
+    }
+
+    if (typeof obj.id === "string" && obj.id.trim().length > 0) {
+      return obj.id.trim();
+    }
+
+    if (typeof obj._id === "string" && obj._id.trim().length > 0) {
+      return obj._id.trim();
+    }
+  }
+
+  return null;
+};
+
+const normalizeExperience = (
+  item: ExperienceApiItem,
+  index: number
+): Experience => {
+  const persistedId = getStringId(item.id) ?? getStringId(item._id);
+  const dragId = persistedId ?? `temp-experience-${index}`;
+
+  return {
+    id: dragId,
+    persistedId: persistedId ?? undefined,
+    _id: typeof item._id === "string" ? item._id : undefined,
+    img: typeof item.img === "string" ? item.img : "",
+    role: typeof item.role === "string" ? item.role : "",
+    company: typeof item.company === "string" ? item.company : "",
+    date: typeof item.date === "string" ? item.date : "",
+    desc: typeof item.desc === "string" ? item.desc : "",
+    skills: Array.isArray(item.skills) ? item.skills : [],
+    position: typeof item.position === "number" ? item.position : undefined,
+  };
 };
 
 // Sortable Experience Card Component
@@ -89,7 +147,7 @@ function SortableExperienceCard({
       <div
         {...attributes}
         {...listeners}
-        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 cursor-grab active:cursor-grabbing rounded bg-background/90 p-1.5 shadow-sm border opacity-0 group-hover:opacity-100 transition-opacity"
+        className="absolute left-2 top-1/2 -translate-y-1/2 z-10 touch-none cursor-grab active:cursor-grabbing rounded bg-background/90 p-1.5 shadow-sm border opacity-80 hover:opacity-100 transition-opacity"
       >
         <GripVertical className="h-4 w-4 text-muted-foreground" />
       </div>
@@ -128,7 +186,13 @@ function SortableExperienceCard({
               variant="ghost"
               size="sm"
               className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 shadow-sm border bg-background"
-              onClick={() => (window.location.href = `/experience/${experience.id}`)}
+              onClick={() => {
+                if (!experience.persistedId) {
+                  alert("This entry has an invalid ID from API and cannot be edited until data is fixed.");
+                  return;
+                }
+                window.location.href = `/experience/${experience.persistedId}`;
+              }}
             >
               <Edit className="w-4 h-4" />
             </Button>
@@ -174,8 +238,8 @@ function SortableExperienceCard({
 }
 
 const Page = () => {
-  const { data: session } = useSession();
-  const userId = session?.user?.id || "111316734788280692226"; // Fallback for testing as seen in original code
+  const { data: session, status } = useSession();
+  const userId = session?.user?.id;
 
   const [experienceOrder, setExperienceOrder] = useState<Experience[]>([]);
   const [hasChanges, setHasChanges] = useState(false);
@@ -190,22 +254,31 @@ const Page = () => {
     queryKey: ["experiences", userId],
     queryFn: async () => {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/experiences/${userId}`
+        `${process.env.NEXT_PUBLIC_API_URL}/experiences/${userId}`,
+        {
+          credentials: "include",
+        }
       );
       if (!response.ok) {
         throw new Error("Failed to fetch experiences");
       }
-      const data = await response.json();
-      return data.sort((a: Experience, b: Experience) => (a.position ?? 999) - (b.position ?? 999));
+      const payload = await response.json();
+      const rawItems: ExperienceApiItem[] = Array.isArray(payload)
+        ? payload
+        : Array.isArray(payload?.data)
+          ? payload.data
+          : [];
+
+      return rawItems
+        .map((item, index) => normalizeExperience(item, index))
+        .sort((a, b) => (a.position ?? 999) - (b.position ?? 999));
     },
     enabled: !!userId,
   });
 
   useEffect(() => {
-    if (experiencesRaw.length > 0) {
-      setExperienceOrder(experiencesRaw);
-      setHasChanges(false);
-    }
+    setExperienceOrder(experiencesRaw);
+    setHasChanges(false);
   }, [experiencesRaw]);
 
   const saveOrderMutation = useMutation({
@@ -219,7 +292,20 @@ const Page = () => {
       if (!response.ok) throw new Error("Failed to reorder experiences");
       return response.json();
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      const resultItems: ExperienceApiItem[] = Array.isArray(result)
+        ? result
+        : Array.isArray(result?.data)
+          ? result.data
+          : [];
+
+      if (resultItems.length > 0) {
+        const normalized = resultItems
+          .map((item, index) => normalizeExperience(item, index))
+          .sort((a, b) => (a.position ?? 999) - (b.position ?? 999));
+        setExperienceOrder(normalized);
+      }
+
       setHasChanges(false);
       refetch();
     },
@@ -240,6 +326,11 @@ const Page = () => {
   });
 
   const handleDelete = (id: string) => {
+    if (!id || id.startsWith("temp-experience-")) {
+      alert("This entry has an invalid ID from API and cannot be deleted until data is fixed.");
+      return;
+    }
+
     if (window.confirm("Are you sure you want to delete this experience entry?")) {
       deleteMutation.mutate(id);
     }
@@ -258,6 +349,11 @@ const Page = () => {
       setExperienceOrder((items) => {
         const oldIndex = items.findIndex((item) => item.id === active.id);
         const newIndex = items.findIndex((item) => item.id === over.id);
+
+        if (oldIndex === -1 || newIndex === -1) {
+          return items;
+        }
+
         const newOrder = arrayMove(items, oldIndex, newIndex);
         setHasChanges(true);
         return newOrder;
@@ -266,7 +362,20 @@ const Page = () => {
   };
 
   const handleSaveOrder = () => {
-    const order = experienceOrder.map((e) => e.id);
+    if (!userId) {
+      alert("Session not ready. Please wait and try again.");
+      return;
+    }
+
+    const order = experienceOrder
+      .map((e) => e.persistedId)
+      .filter((id): id is string => Boolean(id));
+
+    if (order.length === 0) {
+      alert("No valid experience IDs found to save order.");
+      return;
+    }
+
     saveOrderMutation.mutate(order);
   };
 
@@ -276,6 +385,14 @@ const Page = () => {
   };
 
   if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (status === "loading") {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -395,7 +512,7 @@ const Page = () => {
                   <SortableExperienceCard
                     key={experience.id}
                     experience={experience}
-                    onDelete={handleDelete}
+                    onDelete={(id) => handleDelete(experience.persistedId ?? id)}
                   />
                 ))}
               </div>
