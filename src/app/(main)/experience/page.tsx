@@ -91,7 +91,7 @@ const getStringId = (value: unknown): string | null => {
 
 const normalizeExperience = (
   item: ExperienceApiItem,
-  index: number
+  index: number,
 ): Experience => {
   const persistedId = getStringId(item.id) ?? getStringId(item._id);
   const dragId = persistedId ?? `temp-experience-${index}`;
@@ -188,7 +188,9 @@ function SortableExperienceCard({
               className="h-8 w-8 p-0 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 shadow-sm border bg-background"
               onClick={() => {
                 if (!experience.persistedId) {
-                  alert("This entry has an invalid ID from API and cannot be edited until data is fixed.");
+                  alert(
+                    "This entry has an invalid ID from API and cannot be edited until data is fixed.",
+                  );
                   return;
                 }
                 window.location.href = `/experience/${experience.persistedId}`;
@@ -229,7 +231,9 @@ function SortableExperienceCard({
               ))}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground italic">No skills listed</p>
+            <p className="text-xs text-muted-foreground italic">
+              No skills listed
+            </p>
           )}
         </div>
       </CardFooter>
@@ -257,7 +261,7 @@ const Page = () => {
         `${process.env.NEXT_PUBLIC_API_URL}/experiences/${userId}`,
         {
           credentials: "include",
-        }
+        },
       );
       if (!response.ok) {
         throw new Error("Failed to fetch experiences");
@@ -283,12 +287,15 @@ const Page = () => {
 
   const saveOrderMutation = useMutation({
     mutationFn: async (order: string[]) => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/reorder`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ order }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/experiences/reorder`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ order }),
+        },
+      );
       if (!response.ok) throw new Error("Failed to reorder experiences");
       return response.json();
     },
@@ -313,10 +320,13 @@ const Page = () => {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/experiences/${id}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/experiences/${id}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
       if (!response.ok) throw new Error("Failed to delete experience");
       return response.json();
     },
@@ -327,11 +337,15 @@ const Page = () => {
 
   const handleDelete = (id: string) => {
     if (!id || id.startsWith("temp-experience-")) {
-      alert("This entry has an invalid ID from API and cannot be deleted until data is fixed.");
+      alert(
+        "This entry has an invalid ID from API and cannot be deleted until data is fixed.",
+      );
       return;
     }
 
-    if (window.confirm("Are you sure you want to delete this experience entry?")) {
+    if (
+      window.confirm("Are you sure you want to delete this experience entry?")
+    ) {
       deleteMutation.mutate(id);
     }
   };
@@ -340,7 +354,7 @@ const Page = () => {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -408,7 +422,9 @@ const Page = () => {
             <Briefcase className="h-10 w-10 text-destructive" />
           </div>
           <h2 className="text-2xl font-bold text-destructive mb-2">Error</h2>
-          <p className="text-muted-foreground mb-6">Failed to load experience entries. Please try again.</p>
+          <p className="text-muted-foreground mb-6">
+            Failed to load experience entries. Please try again.
+          </p>
           <Button onClick={() => refetch()} variant="outline">
             Try Again
           </Button>
@@ -479,16 +495,18 @@ const Page = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              onClick={() => refetch()} 
+            <Button
+              variant="outline"
+              onClick={() => refetch()}
               disabled={isFetching}
               className="hover:bg-accent/50 group"
             >
-              <RefreshCw className={`h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-500 ${isFetching ? "animate-spin" : ""}`} />
+              <RefreshCw
+                className={`h-4 w-4 mr-2 group-hover:rotate-180 transition-transform duration-500 ${isFetching ? "animate-spin" : ""}`}
+              />
               Refresh
             </Button>
-            <Button 
+            <Button
               onClick={() => (window.location.href = "/experience/create")}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
             >
@@ -512,7 +530,9 @@ const Page = () => {
                   <SortableExperienceCard
                     key={experience.id}
                     experience={experience}
-                    onDelete={(id) => handleDelete(experience.persistedId ?? id)}
+                    onDelete={(id) =>
+                      handleDelete(experience.persistedId ?? id)
+                    }
                   />
                 ))}
               </div>
@@ -524,9 +544,10 @@ const Page = () => {
               <Briefcase className="h-16 w-16 mx-auto text-muted-foreground/50 mb-6" />
               <h3 className="text-2xl font-bold mb-2">Work history is empty</h3>
               <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
-                No work experience found. Add your first professional role to showcase your career path.
+                No work experience found. Add your first professional role to
+                showcase your career path.
               </p>
-              <Button 
+              <Button
                 onClick={() => (window.location.href = "/experience/create")}
                 className="bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
               >
